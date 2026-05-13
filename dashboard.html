@@ -74,11 +74,6 @@ body { font-family: 'Inter', system-ui, sans-serif; background: hsl(var(--backgr
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* ── Period Buttons ──────────────────────────────────── */
-.period-btn { padding: 5px 11px; font-size: 12px; font-weight: 500; border-radius: 6px; border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--foreground)); cursor: pointer; transition: all 0.12s; white-space: nowrap; }
-.period-btn.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; }
-.period-btn:hover:not(.active) { background: hsl(var(--accent)); }
-
 /* ── Buttons ─────────────────────────────────────────── */
 .btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
 .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
@@ -99,9 +94,9 @@ body { font-family: 'Inter', system-ui, sans-serif; background: hsl(var(--backgr
 .card-body { padding: 16px; }
 
 /* ── KPI Card ────────────────────────────────────────── */
-.kpi-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
-.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); }
-.kpi-value { font-size: 22px; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; }
+.kpi-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 3px; }
+.kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); }
+.kpi-value { font-size: 18px; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; }
 .kpi-sub { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
 .kpi-delta { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
 .delta-up { background: #dcfce7; color: #16a34a; }
@@ -109,6 +104,14 @@ body { font-family: 'Inter', system-ui, sans-serif; background: hsl(var(--backgr
 .delta-neutral { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
 .dark .delta-up { background: #14532d; color: #4ade80; }
 .dark .delta-down { background: #7f1d1d; color: #f87171; }
+
+/* ── Period Section ──────────────────────────────────── */
+.period-section { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 16px; }
+.period-section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid hsl(var(--border)); }
+.period-section-label { font-size: 13px; font-weight: 700; color: hsl(var(--brand)); }
+.period-kpi-mini { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; background: hsl(var(--muted)); border-radius: 6px; }
+.period-kpi-mini .lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); }
+.period-kpi-mini .val { font-size: 14px; font-weight: 700; }
 
 /* ── Badge ───────────────────────────────────────────── */
 .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; gap: 3px; }
@@ -148,6 +151,8 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 .progress-bar { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
 
 /* ── Channel Filter ──────────────────────────────────── */
+.ch-filter-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
+.ch-filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); white-space: nowrap; }
 .ch-btn { padding: 5px 12px; font-size: 12px; font-weight: 500; border-radius: 6px; border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--muted-foreground)); cursor: pointer; transition: all 0.12s; }
 .ch-btn.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; }
 .ch-btn:hover:not(.active) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
@@ -191,6 +196,10 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3p { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1024px) {
+  .grid-3p { grid-template-columns: 1fr; }
+}
 @media (max-width: 900px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
@@ -199,14 +208,14 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 @media (max-width: 540px) {
   .grid-4 { grid-template-columns: 1fr 1fr; }
 }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-5 { margin-bottom: 20px; }
 
 /* ── Stat box (for A/B) ──────────────────────────────── */
 .stat-box { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 12px 14px; }
 .stat-box .label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); }
 .stat-box .val { font-size: 20px; font-weight: 700; }
-
-/* ── Tooltip ─────────────────────────────────────────── */
-[title] { cursor: help; }
 
 /* ── Section title ───────────────────────────────────── */
 .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); margin-bottom: 10px; }
@@ -215,13 +224,16 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px;
 .winner-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: hsl(var(--brand) / 0.12); color: hsl(var(--brand)); border-radius: 9999px; font-size: 11px; font-weight: 600; }
 
 /* ── Insight icon ────────────────────────────────────── */
-.ins-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.ins-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: font-size: 14px; flex-shrink: 0; }
 
 /* ── Budget result card ──────────────────────────────── */
 .result-card { background: hsl(var(--brand) / 0.06); border: 1px solid hsl(var(--brand) / 0.25); border-radius: var(--radius); padding: 16px; }
 
 /* ── Focus ring ──────────────────────────────────────── */
 button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px; }
+
+/* ── Period comparison mini kpi grid ─────────────────── */
+.period-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 </style>
 </head>
 <body>
@@ -231,23 +243,15 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
   <div class="header-logo">
     <div class="logo-icon">A</div>
     <span>Ad Dashboard</span>
-    <span style="font-size:11px;font-weight:400;color:hsl(var(--muted-foreground));margin-left:2px;">v2.0</span>
+    <span style="font-size:11px;font-weight:400;color:hsl(var(--muted-foreground));margin-left:2px;">v3.0</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-    <div style="display:flex;gap:4px;" id="period-btns">
-      <button class="period-btn active" onclick="setPeriod(0,this)">오늘</button>
-      <button class="period-btn" onclick="setPeriod(1,this)">7일</button>
-      <button class="period-btn" onclick="setPeriod(2,this)">14일</button>
-      <button class="period-btn" onclick="setPeriod(3,this)">21일</button>
-      <button class="period-btn" onclick="setPeriod(4,this)">이달</button>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:12px;color:hsl(var(--muted-foreground));">2026-05-13</span>
+    <div class="notif-wrap">
+      <button class="theme-toggle" title="알림" onclick="showTab('insights',document.querySelector('.tab-btn:nth-child(8)'))">🔔</button>
+      <div class="notif-dot"></div>
     </div>
-    <div class="header-right">
-      <div class="notif-wrap">
-        <button class="theme-toggle" title="알림" onclick="showTab('insights',document.querySelector('.tab-btn:nth-child(7)'))">🔔</button>
-        <div class="notif-dot"></div>
-      </div>
-      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="다크모드 전환">🌙</button>
-    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="다크모드 전환">🌙</button>
   </div>
 </header>
 
@@ -256,6 +260,7 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
   <button class="tab-btn active" onclick="showTab('overview',this)">개요</button>
   <button class="tab-btn" onclick="showTab('detail',this)">상세 성과</button>
   <button class="tab-btn" onclick="showTab('channel',this)">채널 분석</button>
+  <button class="tab-btn" onclick="showTab('creative',this)">소재별 성과</button>
   <button class="tab-btn" onclick="showTab('sa',this)">SA 상세</button>
   <button class="tab-btn" onclick="showTab('budget',this)">예산 플래너</button>
   <button class="tab-btn" onclick="showTab('ab',this)">A/B 테스트</button>
@@ -269,8 +274,19 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Overview ─────────────────────────────────────────── -->
 <div id="pane-overview" class="tab-pane active page">
-  <!-- KPI row -->
-  <div class="grid-4 mb-5" id="kpi-grid"></div>
+  <!-- Global channel filter -->
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
+
+  <!-- 3-period comparison: 오늘 / 7일 / 이달 -->
+  <div class="grid-3p mb-4" id="period-compare"></div>
 
   <!-- Charts row 1 -->
   <div class="grid-2 mb-4">
@@ -282,9 +298,7 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
       <div class="card-body"><canvas id="chart-trend" height="200"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-header">
-        <span class="card-title">채널별 비용 비중</span>
-      </div>
+      <div class="card-header"><span class="card-title">채널별 비용 비중</span></div>
       <div class="card-body"><canvas id="chart-pie" height="200"></canvas></div>
     </div>
   </div>
@@ -319,6 +333,15 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Detail ───────────────────────────────────────────── -->
 <div id="pane-detail" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div class="card mb-4">
     <div class="card-header">
       <span class="card-title">채널별 상세 성과</span>
@@ -360,13 +383,14 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Channel ──────────────────────────────────────────── -->
 <div id="pane-channel" class="tab-pane page">
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="ch-filter">
-    <button class="ch-btn active" onclick="setChannel('전체',this)">전체</button>
-    <button class="ch-btn" onclick="setChannel('Helper',this)">Helper</button>
-    <button class="ch-btn" onclick="setChannel('CPF',this)">CPF</button>
-    <button class="ch-btn" onclick="setChannel('FA',this)">FA</button>
-    <button class="ch-btn" onclick="setChannel('HL',this)">HL</button>
-    <button class="ch-btn" onclick="setChannel('MCL',this)">MCL</button>
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
   </div>
   <div class="grid-4 mb-4" id="ch-kpi"></div>
   <div class="grid-2 mb-4">
@@ -387,8 +411,69 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
   </div>
 </div>
 
+<!-- ─── Creative ─────────────────────────────────────────── -->
+<div id="pane-creative" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
+  <div class="grid-4 mb-4" id="creative-kpi"></div>
+  <div class="card mb-4">
+    <div class="card-header">
+      <span class="card-title">소재별 성과</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="form-input" style="width:160px;padding:5px 10px;font-size:12px;" placeholder="소재 검색..." oninput="filterCreativeTable(this.value)" id="creative-search">
+        <button class="btn btn-outline btn-sm" onclick="exportTableCSV('creative-tbody','소재별성과')">↓ CSV</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('creative-tbody',0,this)">소재명</th>
+            <th onclick="sortTable('creative-tbody',1,this)">매체</th>
+            <th onclick="sortTable('creative-tbody',2,this)">형식</th>
+            <th onclick="sortTable('creative-tbody',3,this)" class="num">노출</th>
+            <th onclick="sortTable('creative-tbody',4,this)" class="num">클릭</th>
+            <th onclick="sortTable('creative-tbody',5,this)" class="num">CTR</th>
+            <th onclick="sortTable('creative-tbody',6,this)" class="num">비용</th>
+            <th onclick="sortTable('creative-tbody',7,this)" class="num">CPC</th>
+            <th onclick="sortTable('creative-tbody',8,this)" class="num">전환</th>
+            <th onclick="sortTable('creative-tbody',9,this)" class="num">CVR</th>
+          </tr>
+        </thead>
+        <tbody id="creative-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">소재별 노출수</span></div>
+      <div class="card-body"><canvas id="chart-cr1" height="240"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">소재별 전환수</span></div>
+      <div class="card-body"><canvas id="chart-cr2" height="240"></canvas></div>
+    </div>
+  </div>
+</div>
+
 <!-- ─── SA ───────────────────────────────────────────────── -->
 <div id="pane-sa" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div class="grid-4 mb-4">
     <div class="kpi-card">
       <div class="kpi-label">SA 노출</div>
@@ -453,6 +538,15 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Budget ───────────────────────────────────────────── -->
 <div id="pane-budget" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div class="grid-2 mb-4">
     <div class="card">
       <div class="card-header"><span class="card-title">예산 시뮬레이션</span></div>
@@ -494,6 +588,15 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── A/B ──────────────────────────────────────────────── -->
 <div id="pane-ab" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div class="grid-2 mb-4">
     <div class="card">
       <div class="card-header">
@@ -537,6 +640,15 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Insights ─────────────────────────────────────────── -->
 <div id="pane-insights" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
     <h2 style="font-size:15px;font-weight:600;">자동화 인사이트</h2>
     <span style="font-size:12px;color:hsl(var(--muted-foreground));">최근 업데이트: 오늘 09:00</span>
@@ -556,12 +668,17 @@ button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px
 
 <!-- ─── Actions ──────────────────────────────────────────── -->
 <div id="pane-actions" class="tab-pane page">
+  <div class="ch-filter-bar mb-4">
+    <span class="ch-filter-label">매체별</span>
+    <button class="ch-btn active" data-ch="전체" onclick="setGlobalCh('전체',this)">전체</button>
+    <button class="ch-btn" data-ch="Helper" onclick="setGlobalCh('Helper',this)">Helper</button>
+    <button class="ch-btn" data-ch="CPF" onclick="setGlobalCh('CPF',this)">CPF</button>
+    <button class="ch-btn" data-ch="FA" onclick="setGlobalCh('FA',this)">FA</button>
+    <button class="ch-btn" data-ch="HL" onclick="setGlobalCh('HL',this)">HL</button>
+    <button class="ch-btn" data-ch="MCL" onclick="setGlobalCh('MCL',this)">MCL</button>
+  </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
     <div style="display:flex;gap:6px;align-items:center;">
-      <select class="form-select" style="width:auto;font-size:12px;padding:5px 8px;" onchange="filterActions(this.value)" id="action-filter">
-        <option value="">전체 채널</option>
-        <option>Helper</option><option>CPF</option><option>FA</option><option>HL</option><option>MCL</option><option>전체</option>
-      </select>
       <select class="form-select" style="width:auto;font-size:12px;padding:5px 8px;" onchange="filterActionStatus(this.value)" id="status-filter">
         <option value="">전체 상태</option>
         <option>완료</option><option>진행중</option><option>검토중</option><option>신규</option>
@@ -714,6 +831,7 @@ const CHART_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444'];
 const CHART_COLORS_ALPHA = ['rgba(59,130,246,0.7)','rgba(139,92,246,0.7)','rgba(16,185,129,0.7)','rgba(245,158,11,0.7)','rgba(239,68,68,0.7)'];
 const L7 = ['5/4','5/5','5/6','5/7','5/8','5/9','5/10'];
 
+// KPI_DATA index: 0=오늘, 1=7일, 2=14일, 3=21일, 4=이달
 const KPI_DATA = [
   {cls:1234, imp:45678, click:2341, ctr:5.12, cost:1234567, cpc:527, app:123, cvr:5.25},
   {cls:8638, imp:319746, click:16387, ctr:5.12, cost:8641969, cpc:527, app:861, cvr:5.25},
@@ -729,25 +847,37 @@ const CH_DATA = {
   app:   [52, 34, 23, 12, 8]
 };
 
-const TARGETS = { app: 3000, cvr: 5.5, cpa: 12000, budget: 40000000 };
-const INSIGHTS = [
-  { type:'red',   icon:'⚠️', tag:'주의 필요',   title:'CPF 채널 CPC 급등', desc:'전주 대비 23.5% 상승. 입찰 전략 및 품질지수 점검이 필요합니다.', action:'입찰가 조정 →' },
-  { type:'green', icon:'✅', tag:'긍정 신호',   title:'Helper 채널 CVR 개선', desc:'소재 업데이트 후 CVR이 15.2% 향상되었습니다. 소재 확장을 고려하세요.', action:'소재 복제 →' },
-  { type:'blue',  icon:'💡', tag:'기회 발견',   title:'FA 채널 예산 확대 권장', desc:'ROAS 최상위 채널입니다. 예산 20% 증액 시 전환 +34건이 예상됩니다.', action:'예산 조정 →' },
-  { type:'green', icon:'📈', tag:'목표 초과',   title:'이달 전환수 목표 93% 달성', desc:'목표 대비 7% 부족 상황이나 현 추세 유지 시 초과 달성 가능합니다.', action:'상세 보기 →' },
-  { type:'blue',  icon:'🕐', tag:'시간대 인사이트', title:'오후 2~4시 CTR 최고 구간', desc:'해당 시간대에 입찰 가중치를 높이면 효율 개선이 예상됩니다.', action:'시간 설정 →' },
+const CREATIVE_DATA = [
+  {name:'5월시즌_배너v1',   ch:'Helper', type:'이미지',   imp:12340, click:523, cost:289000, app:28},
+  {name:'5월시즌_배너v2',   ch:'Helper', type:'이미지',   imp:9870,  click:467, cost:241000, app:24},
+  {name:'브랜드_영상_15s',  ch:'CPF',    type:'동영상',   imp:8234,  click:312, cost:198000, app:18},
+  {name:'할인_프로모션A',   ch:'FA',     type:'카탈로그', imp:5678,  click:267, cost:142000, app:15},
+  {name:'신제품_론칭v1',    ch:'HL',     type:'이미지',   imp:4321,  click:198, cost:115000, app:11},
+  {name:'리타겟팅_동영상',  ch:'MCL',    type:'동영상',   imp:3456,  click:156, cost:89000,  app:8},
+  {name:'검색광고_텍스트A', ch:'Helper', type:'텍스트',   imp:6789,  click:398, cost:167000, app:22},
+  {name:'검색광고_텍스트B', ch:'CPF',    type:'텍스트',   imp:5432,  click:287, cost:134000, app:16},
+  {name:'카카오_배너v1',    ch:'FA',     type:'이미지',   imp:7234,  click:334, cost:178000, app:19},
+  {name:'리마케팅_텍스트',  ch:'HL',     type:'텍스트',   imp:3987,  click:187, cost:98000,  app:10}
 ];
 
-let curP = 0;
+const TARGETS = { app: 3000, cvr: 5.5, cpa: 12000, budget: 40000000 };
+const INSIGHTS = [
+  { type:'red',   icon:'⚠️', tag:'주의 필요',      title:'CPF 채널 CPC 급등',         desc:'전주 대비 23.5% 상승. 입찰 전략 및 품질지수 점검이 필요합니다.', action:'입찰가 조정 →' },
+  { type:'green', icon:'✅', tag:'긍정 신호',      title:'Helper 채널 CVR 개선',       desc:'소재 업데이트 후 CVR이 15.2% 향상되었습니다. 소재 확장을 고려하세요.', action:'소재 복제 →' },
+  { type:'blue',  icon:'💡', tag:'기회 발견',      title:'FA 채널 예산 확대 권장',     desc:'ROAS 최상위 채널입니다. 예산 20% 증액 시 전환 +34건이 예상됩니다.', action:'예산 조정 →' },
+  { type:'green', icon:'📈', tag:'목표 초과',      title:'이달 전환수 목표 93% 달성', desc:'목표 대비 7% 부족 상황이나 현 추세 유지 시 초과 달성 가능합니다.', action:'상세 보기 →' },
+  { type:'blue',  icon:'🕐', tag:'시간대 인사이트', title:'오후 2~4시 CTR 최고 구간', desc:'해당 시간대에 입찰 가중치를 높이면 효율 개선이 예상됩니다.', action:'시간 설정 →' }
+];
+
 let curCh = '전체';
 const charts = {};
 let sortState = {};
 
 /* ── Format ────────────────────────────────────────────────── */
-const fN = n => Number(n).toLocaleString('ko-KR');
-const fW = n => '₩' + Number(n).toLocaleString('ko-KR');
-const fP = n => Number(n).toFixed(2) + '%';
-const fPct = n => Number(n).toFixed(1) + '%';
+const fN  = n => Number(n).toLocaleString('ko-KR');
+const fW  = n => '₩' + Number(n).toLocaleString('ko-KR');
+const fP  = n => Number(n).toFixed(2) + '%';
+const fM  = n => '₩' + (Number(n)/10000).toFixed(0) + '만';
 
 /* ── Theme ─────────────────────────────────────────────────── */
 function toggleTheme() {
@@ -782,41 +912,92 @@ function showTab(id, btn) {
   if (btn) btn.classList.add('active');
 }
 
-/* ── Period ─────────────────────────────────────────────────── */
-function setPeriod(i, btn) {
-  curP = i;
-  document.querySelectorAll('#period-btns .period-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderKPI();
+/* ── Global Channel Filter ──────────────────────────────────── */
+function setGlobalCh(ch, btn) {
+  curCh = ch;
+  document.querySelectorAll('.ch-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.ch === ch);
+  });
+  renderPeriodCompare();
+  renderDetail();
+  renderChKPI();
+  renderCreative();
+  filterActionsByCh();
 }
 
-/* ── KPI ────────────────────────────────────────────────────── */
-function renderKPI() {
-  const d = KPI_DATA[curP];
-  const items = [
-    { l:'CLS',  v: fN(d.cls),        prev: d.cls * 0.95,   curr: d.cls,   isNum:true  },
-    { l:'IMP',  v: fN(d.imp),        prev: d.imp * 0.91,   curr: d.imp,   isNum:true  },
-    { l:'CLICK',v: fN(d.click),      prev: d.click * 0.97, curr: d.click, isNum:true  },
-    { l:'CTR',  v: fP(d.ctr),        prev: d.ctr * 1.004,  curr: d.ctr,   isNum:true  },
-    { l:'COST', v: fW(d.cost),       prev: d.cost * 0.88,  curr: d.cost,  isNum:true  },
-    { l:'CPC',  v: '₩' + d.cpc,     prev: d.cpc * 1.021,  curr: d.cpc,   isNum:true  },
-    { l:'전환', v: fN(d.app),        prev: d.app * 0.816,  curr: d.app,   isNum:true  },
-    { l:'CVR',  v: fP(d.cvr),        prev: d.cvr * 0.999,  curr: d.cvr,   isNum:true  }
+/* ── Channel share helpers ──────────────────────────────────── */
+function getChIdx() { return CH.indexOf(curCh); }
+
+function getPeriodKPI(pidx) {
+  const d = KPI_DATA[pidx];
+  if (curCh === '전체') return { ...d };
+  const ci = getChIdx();
+  const totImp  = CH_DATA.imp.reduce((a,b)=>a+b,0);
+  const totClk  = CH_DATA.click.reduce((a,b)=>a+b,0);
+  const totCost = CH_DATA.cost.reduce((a,b)=>a+b,0);
+  const totApp  = CH_DATA.app.reduce((a,b)=>a+b,0);
+  const sImp  = CH_DATA.imp[ci]  / totImp;
+  const sClk  = CH_DATA.click[ci]/ totClk;
+  const sCost = CH_DATA.cost[ci] / totCost;
+  const sApp  = CH_DATA.app[ci]  / totApp;
+  const chCtr = CH_DATA.click[ci] / CH_DATA.imp[ci] * 100;
+  const chCpc = Math.round(CH_DATA.cost[ci] / CH_DATA.click[ci]);
+  const chCvr = CH_DATA.app[ci]  / CH_DATA.click[ci] * 100;
+  return {
+    cls:   Math.round(d.cls   * sImp),
+    imp:   Math.round(d.imp   * sImp),
+    click: Math.round(d.click * sClk),
+    ctr:   +chCtr.toFixed(2),
+    cost:  Math.round(d.cost  * sCost),
+    cpc:   chCpc,
+    app:   Math.round(d.app   * sApp),
+    cvr:   +chCvr.toFixed(2)
+  };
+}
+
+/* ── Period comparison (overview) ───────────────────────────── */
+function renderPeriodCompare() {
+  const periods = [
+    { label: '오늘', icon: '📅', pidx: 0 },
+    { label: '7일',  icon: '📆', pidx: 1 },
+    { label: '이달', icon: '🗓️', pidx: 4 }
   ];
-  const upMetrics = new Set(['CLS','IMP','CLICK','CTR','전환','CVR']);
-  const grid = document.getElementById('kpi-grid');
-  grid.innerHTML = items.map(k => {
-    const pct = ((k.curr - k.prev) / Math.abs(k.prev) * 100).toFixed(1);
-    const isUp = parseFloat(pct) > 0;
-    const isGood = upMetrics.has(k.l) ? isUp : !isUp;
-    const cls = isGood ? 'delta-up' : 'delta-down';
-    const arr = isUp ? '↑' : '↓';
-    return `<div class="kpi-card">
-      <div class="kpi-label">${k.l}</div>
-      <div class="kpi-value">${k.v}</div>
-      <div class="kpi-sub">
-        <span class="kpi-delta ${cls}">${arr} ${Math.abs(pct)}%</span>
-        <span style="font-size:10px;color:hsl(var(--muted-foreground));">vs 이전</span>
+  const chLabel = curCh === '전체' ? '전체 매체' : curCh + ' 채널';
+
+  document.getElementById('period-compare').innerHTML = periods.map(({ label, icon, pidx }) => {
+    const d = getPeriodKPI(pidx);
+    const prev = getPeriodKPI(Math.max(0, pidx - 1));
+    const metrics = [
+      { l: '노출',   v: fN(d.imp),             prev: prev.imp,   curr: d.imp   },
+      { l: '클릭',   v: fN(d.click),           prev: prev.click, curr: d.click },
+      { l: 'CTR',    v: fP(d.ctr),             prev: prev.ctr,   curr: d.ctr   },
+      { l: '비용',   v: fM(d.cost),            prev: prev.cost,  curr: d.cost  },
+      { l: 'CPC',    v: '₩'+fN(d.cpc),        prev: prev.cpc,   curr: d.cpc   },
+      { l: '전환',   v: fN(d.app),             prev: prev.app,   curr: d.app   },
+      { l: 'CVR',    v: fP(d.cvr),             prev: prev.cvr,   curr: d.cvr   },
+      { l: 'CLS',    v: fN(d.cls),             prev: prev.cls,   curr: d.cls   }
+    ];
+    const upGood = new Set(['노출','클릭','CTR','전환','CVR','CLS']);
+    return `
+    <div class="period-section">
+      <div class="period-section-header">
+        <span style="font-size:18px;">${icon}</span>
+        <span class="period-section-label">${label}</span>
+        <span style="font-size:11px;color:hsl(var(--muted-foreground));margin-left:auto;">${chLabel}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${metrics.map(m => {
+          const pct = prev.imp ? ((m.curr - m.prev) / Math.abs(m.prev) * 100).toFixed(1) : '0.0';
+          const isUp = parseFloat(pct) >= 0;
+          const isGood = upGood.has(m.l) ? isUp : !isUp;
+          const arrow = isUp ? '↑' : '↓';
+          const cls = isGood ? 'delta-up' : 'delta-down';
+          return `<div class="period-kpi-mini">
+            <div class="lbl">${m.l}</div>
+            <div class="val">${m.v}</div>
+            <div style="margin-top:2px;"><span class="kpi-delta ${cls}" style="font-size:10px;padding:1px 4px;">${arrow} ${Math.abs(pct)}%</span></div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   }).join('');
@@ -849,8 +1030,9 @@ function renderPacing() {
 
 /* ── Detail Table ───────────────────────────────────────────── */
 function renderDetail() {
-  const targets = [48000, 36000, 24000, 14000, 9000]; // mock targets per channel
-  document.getElementById('detail-tbody').innerHTML = CH.map((ch, i) => {
+  const targets = [48000, 36000, 24000, 14000, 9000];
+  const rows = (curCh === '전체' ? CH : [curCh]).map(ch => {
+    const i = CH.indexOf(ch);
     const ctr = (CH_DATA.click[i] / CH_DATA.imp[i] * 100).toFixed(2);
     const cpc = Math.round(CH_DATA.cost[i] / CH_DATA.click[i]);
     const cvr = (CH_DATA.app[i] / CH_DATA.click[i] * 100).toFixed(2);
@@ -867,12 +1049,12 @@ function renderDetail() {
       <td class="num">${cvr}%</td>
       <td class="num"><span class="badge ${badge}">${pct}%</span></td>
     </tr>`;
-  }).join('');
+  });
+  document.getElementById('detail-tbody').innerHTML = rows.join('');
 }
 
 /* ── Channel KPI ────────────────────────────────────────────── */
 function renderChKPI() {
-  const i = CH.indexOf(curCh);
   let kpis;
   if (curCh === '전체') {
     const totImp  = CH_DATA.imp.reduce((a,b)=>a+b,0);
@@ -886,6 +1068,7 @@ function renderChKPI() {
       {l:'총 전환', v: fN(totApp)}
     ];
   } else {
+    const i = getChIdx();
     kpis = [
       {l:'노출', v: fN(CH_DATA.imp[i])},
       {l:'클릭', v: fN(CH_DATA.click[i])},
@@ -896,6 +1079,66 @@ function renderChKPI() {
   document.getElementById('ch-kpi').innerHTML = kpis.map(k =>
     `<div class="kpi-card"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div></div>`
   ).join('');
+}
+
+/* ── Creative Tab ───────────────────────────────────────────── */
+function renderCreative() {
+  const filtered = curCh === '전체' ? CREATIVE_DATA : CREATIVE_DATA.filter(d => d.ch === curCh);
+  const totImp   = filtered.reduce((a,d)=>a+d.imp,0);
+  const totClick = filtered.reduce((a,d)=>a+d.click,0);
+  const totCost  = filtered.reduce((a,d)=>a+d.cost,0);
+  const totApp   = filtered.reduce((a,d)=>a+d.app,0);
+  const avgCtr   = totImp   ? (totClick/totImp*100).toFixed(2)  : '0.00';
+  const avgCpc   = totClick ? Math.round(totCost/totClick)       : 0;
+  const avgCvr   = totClick ? (totApp/totClick*100).toFixed(2)  : '0.00';
+
+  document.getElementById('creative-kpi').innerHTML = [
+    {l:'총 노출',   v: fN(totImp)},
+    {l:'총 클릭',   v: fN(totClick)},
+    {l:'평균 CTR',  v: avgCtr+'%'},
+    {l:'총 비용',   v: fW(totCost)},
+    {l:'평균 CPC',  v: '₩'+fN(avgCpc)},
+    {l:'총 전환',   v: fN(totApp)},
+    {l:'평균 CVR',  v: avgCvr+'%'},
+    {l:'소재 수',   v: filtered.length+'개'}
+  ].map(k => `<div class="kpi-card"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div></div>`).join('');
+
+  const chColors  = {Helper:'badge-blue', CPF:'badge-yellow', FA:'badge-green', HL:'badge-gray', MCL:'badge-red'};
+  const typeColors = {이미지:'badge-blue', 동영상:'badge-green', 카탈로그:'badge-yellow', 텍스트:'badge-gray'};
+  document.getElementById('creative-tbody').innerHTML = filtered.map(d => {
+    const ctr = (d.click/d.imp*100).toFixed(2);
+    const cpc = Math.round(d.cost/d.click);
+    const cvr = (d.app/d.click*100).toFixed(2);
+    return `<tr>
+      <td style="font-weight:500;">${d.name}</td>
+      <td><span class="badge ${chColors[d.ch]||'badge-gray'}">${d.ch}</span></td>
+      <td><span class="badge ${typeColors[d.type]||'badge-gray'}">${d.type}</span></td>
+      <td class="num">${fN(d.imp)}</td>
+      <td class="num">${fN(d.click)}</td>
+      <td class="num">${ctr}%</td>
+      <td class="num">${fW(d.cost)}</td>
+      <td class="num">₩${fN(cpc)}</td>
+      <td class="num">${d.app}</td>
+      <td class="num">${cvr}%</td>
+    </tr>`;
+  }).join('');
+
+  if (charts['chart-cr1']) {
+    charts['chart-cr1'].data.labels = filtered.map(d => d.name.length > 8 ? d.name.slice(0,8)+'…' : d.name);
+    charts['chart-cr1'].data.datasets[0].data = filtered.map(d => d.imp);
+    charts['chart-cr1'].update();
+  }
+  if (charts['chart-cr2']) {
+    charts['chart-cr2'].data.labels = filtered.map(d => d.name.length > 8 ? d.name.slice(0,8)+'…' : d.name);
+    charts['chart-cr2'].data.datasets[0].data = filtered.map(d => d.app);
+    charts['chart-cr2'].update();
+  }
+}
+
+function filterCreativeTable(q) {
+  document.querySelectorAll('#creative-tbody tr').forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
 }
 
 /* ── Budget Slider ──────────────────────────────────────────── */
@@ -912,7 +1155,7 @@ function onBudgetSlider() {
   const clicks = Math.round(b / c);
   const convs  = Math.round(clicks * v / 100);
   const cpa    = convs ? Math.round(b / convs) : 0;
-  const roas   = convs ? ((convs * 50000) / b * 100).toFixed(1) : 0; // mock avg. order value 50,000
+  const roas   = convs ? ((convs * 50000) / b * 100).toFixed(1) : 0;
   const cpaDiff = targetCpa && cpa ? cpa - targetCpa : null;
   const cpaDiffColor = cpaDiff !== null ? (cpaDiff <= 0 ? '#16a34a' : '#dc2626') : '';
   const cpaDiffText  = cpaDiff !== null
@@ -987,9 +1230,7 @@ function renderAB() {
         <span>${k}</span>
         <span style="font-weight:600;color:${color};">${parseFloat(diff)>0?'+':''}${diff}%</span>
       </div>
-      <div class="progress">
-        <div class="progress-bar" style="width:${width}%;background:${color};"></div>
-      </div>
+      <div class="progress"><div class="progress-bar" style="width:${width}%;background:${color};"></div></div>
     </div>`;
   }).join('');
 }
@@ -1014,18 +1255,16 @@ function renderInsights() {
 }
 
 /* ── Action Log ─────────────────────────────────────────────── */
-function filterActions(ch) {
+function filterActionsByCh() {
   const rows = document.querySelectorAll('#action-tbody tr');
   rows.forEach(r => {
-    const match = !ch || r.dataset.ch === ch;
-    r.style.display = match ? '' : 'none';
+    const chMatch = curCh === '전체' || r.dataset.ch === curCh || r.dataset.ch === '전체';
+    r.style.display = chMatch ? '' : 'none';
   });
 }
 function filterActionStatus(st) {
-  const rows = document.querySelectorAll('#action-tbody tr');
-  rows.forEach(r => {
-    const match = !st || r.dataset.st === st;
-    r.style.display = match ? '' : 'none';
+  document.querySelectorAll('#action-tbody tr').forEach(r => {
+    r.style.display = (!st || r.dataset.st === st) ? '' : 'none';
   });
 }
 
@@ -1042,7 +1281,6 @@ function saveAction() {
   const who  = document.getElementById('m-person').value.trim() || '—';
   const eff  = document.getElementById('m-effect').value.trim() || '—';
   if (!desc) { alert('액션 내용을 입력하세요'); return; }
-
   const badgeMap = { Helper:'badge-blue', CPF:'badge-yellow', FA:'badge-green', HL:'badge-gray', MCL:'badge-gray', '전체':'badge-gray' };
   const tr = document.createElement('tr');
   tr.dataset.ch = ch; tr.dataset.st = '신규';
@@ -1061,13 +1299,8 @@ function sortTable(tbodyId, colIdx, th) {
   const key   = `${tbodyId}-${colIdx}`;
   const asc   = sortState[key] !== true;
   sortState[key] = asc;
-
-  // Update header classes
-  tbody.closest('table').querySelectorAll('th').forEach(h => {
-    h.classList.remove('sort-asc','sort-desc');
-  });
+  tbody.closest('table').querySelectorAll('th').forEach(h => h.classList.remove('sort-asc','sort-desc'));
   th.classList.add(asc ? 'sort-asc' : 'sort-desc');
-
   rows.sort((a, b) => {
     const av = a.cells[colIdx]?.textContent.replace(/[₩,%\s]/g,'').replace(/,/g,'') || '';
     const bv = b.cells[colIdx]?.textContent.replace(/[₩,%\s]/g,'').replace(/,/g,'') || '';
@@ -1110,20 +1343,18 @@ function exportChart(id) {
 }
 
 /* ── Save Targets ───────────────────────────────────────────── */
-function saveTargets() {} // hook for future persistence
+function saveTargets() {}
 
 /* ── Heatmap ────────────────────────────────────────────────── */
 function renderHeatmap() {
   const hours = Array.from({length:24},(_,i)=>i+'시');
-  const data  = CH.map(() => Array.from({length:24},()=> +(Math.random()*8+1).toFixed(2)));
+  const chsToShow = curCh === '전체' ? CH : [curCh];
+  const data  = chsToShow.map(() => Array.from({length:24},()=> +(Math.random()*8+1).toFixed(2)));
   const maxVal = 9;
-  const bgFor  = v => {
-    const ratio = v / maxVal;
-    return `rgba(59,130,246,${(ratio*0.85+0.08).toFixed(2)})`;
-  };
+  const bgFor  = v => { const r = v/maxVal; return `rgba(59,130,246,${(r*0.85+0.08).toFixed(2)})`; };
   const html = `<table style="border-collapse:collapse;font-size:10px;white-space:nowrap;">
     <thead><tr><th style="padding:4px 8px;"></th>${hours.map(h=>`<th style="padding:4px 5px;font-weight:500;color:hsl(var(--muted-foreground));">${h}</th>`).join('')}</tr></thead>
-    <tbody>${CH.map((ch,ci)=>`<tr><td style="padding:4px 8px;font-weight:500;">${ch}</td>${data[ci].map(v=>`<td style="padding:3px 5px;background:${bgFor(v)};color:white;text-align:center;border-radius:3px;">${v}</td>`).join('')}</tr>`).join('')}</tbody>
+    <tbody>${chsToShow.map((ch,ci)=>`<tr><td style="padding:4px 8px;font-weight:500;">${ch}</td>${data[ci].map(v=>`<td style="padding:3px 5px;background:${bgFor(v)};color:white;text-align:center;border-radius:3px;">${v}</td>`).join('')}</tr>`).join('')}</tbody>
   </table>`;
   document.getElementById('heatmap-wrap').innerHTML = html;
 }
@@ -1158,7 +1389,6 @@ function initCharts() {
   const tc = getTextColor();
   const gc = getGridColor();
 
-  // Trend line
   mk('chart-trend','line',{
     labels: L7,
     datasets: [
@@ -1174,7 +1404,6 @@ function initCharts() {
     }
   });
 
-  // Pie
   mk('chart-pie','doughnut',{
     labels: CH,
     datasets:[{ data: CH_DATA.cost, backgroundColor: CHART_COLORS, borderWidth: 2, borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff' }]
@@ -1183,19 +1412,16 @@ function initCharts() {
     plugins:{ legend:{ display:true, position:'bottom', labels:{ color:tc, font:{size:11}, boxWidth:10, padding:10 } } }
   });
 
-  // CVR bar
   mk('chart-cvr','bar',{
     labels: CH,
     datasets:[{ label:'CVR(%)', data:[5.56,5.46,5.59,5.13,5.80], backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
   },{ ...baseOpts(false) });
 
-  // CPC line
   mk('chart-cpc','line',{
     labels: L7,
     datasets:[{ label:'CPC(원)', data:[542,538,529,527,521,527,527], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.06)', tension:0.3, fill:true, pointRadius:3 }]
   },{ ...baseOpts(false) });
 
-  // Radar
   mk('chart-radar','radar',{
     labels:['CTR','CVR','CPC효율','전환수','비용효율'],
     datasets: CH.map((ch,i)=>({
@@ -1208,7 +1434,6 @@ function initCharts() {
     scales:{ r:{ ticks:{ display:false }, grid:{ color:gc }, pointLabels:{ color:tc, font:{size:11} } } }
   });
 
-  // Detail bars
   mk('chart-d1','bar',{
     labels: CH,
     datasets:[{ label:'전환수', data: CH_DATA.app, backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
@@ -1219,7 +1444,6 @@ function initCharts() {
     datasets:[{ label:'CTR(%)', data: CH.map((_,i)=>+(CH_DATA.click[i]/CH_DATA.imp[i]*100).toFixed(2)), backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
   },{ ...baseOpts(false) });
 
-  // Channel trend
   mk('chart-ch1','line',{
     labels: L7,
     datasets:[{ label:'전환수', data:[18,22,19,24,21,23,23], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', tension:0.3, fill:true, pointRadius:3 }]
@@ -1233,7 +1457,18 @@ function initCharts() {
     ]
   },{ ...baseOpts(true) });
 
-  // SA
+  // Creative charts
+  const crLabels = CREATIVE_DATA.map(d => d.name.length > 8 ? d.name.slice(0,8)+'…' : d.name);
+  mk('chart-cr1','bar',{
+    labels: crLabels,
+    datasets:[{ label:'노출수', data: CREATIVE_DATA.map(d=>d.imp), backgroundColor: CHART_COLORS_ALPHA[0], borderRadius:4 }]
+  },{ ...baseOpts(false), indexAxis:'y' });
+
+  mk('chart-cr2','bar',{
+    labels: crLabels,
+    datasets:[{ label:'전환수', data: CREATIVE_DATA.map(d=>d.app), backgroundColor: CHART_COLORS_ALPHA[2], borderRadius:4 }]
+  },{ ...baseOpts(false), indexAxis:'y' });
+
   mk('chart-sa','line',{
     labels: L7,
     datasets:[
@@ -1247,7 +1482,6 @@ function initCharts() {
     datasets:[{ label:'노출 비중(%)', data:[28,34,22,10,6], backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
   },{ ...baseOpts(false) });
 
-  // Budget pacing
   mk('chart-budget-pacing','bar',{
     labels:['1주차','2주차','3주차','4주차'],
     datasets:[
@@ -1256,7 +1490,6 @@ function initCharts() {
     ]
   },{ ...baseOpts(true) });
 
-  // A/B
   mk('chart-ab','bar',{
     labels:['CTR(%)','CVR(%)','전환수'],
     datasets:[
@@ -1265,19 +1498,11 @@ function initCharts() {
     ]
   },{ ...baseOpts(true) });
 
-  // Insights charts
   mk('chart-ins1','bar',{
     labels:['전환','노출','클릭','비용','CVR'],
-    datasets:[{
-      label:'전주대비(%)',
-      data:[18.4,8.7,3.1,-2.1,0.8],
-      backgroundColor:d => Array.isArray(d) ? [] : [],
-      borderRadius:4
-    }]
+    datasets:[{ label:'전주대비(%)', data:[18.4,8.7,3.1,-2.1,0.8], backgroundColor:[], borderRadius:4 }]
   },{
     ...baseOpts(false),
-    plugins:{ legend:{ display:false } },
-    // color by value
     animation:{ onComplete: function() {
       const ch = charts['chart-ins1'];
       if (!ch) return;
@@ -1305,21 +1530,14 @@ function rebuildCharts() {
   initCharts();
 }
 
-/* ── Channel filter ─────────────────────────────────────────── */
-function setChannel(ch, btn) {
-  curCh = ch;
-  document.querySelectorAll('#ch-filter .ch-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderChKPI();
-}
-
 /* ── Init ───────────────────────────────────────────────────── */
 function init() {
   updateThemeIcon();
-  renderKPI();
+  renderPeriodCompare();
   renderPacing();
   renderDetail();
   renderChKPI();
+  renderCreative();
   onBudgetSlider();
   renderBudgetAlloc();
   renderAB();
