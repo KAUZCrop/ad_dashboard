@@ -1,390 +1,1334 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Meta Ads Dashboard</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ad Performance Dashboard</title>
+<script>
+  if (localStorage.getItem('theme') === 'dark' ||
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  }
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: 'class' }</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-body{font-family:system-ui,sans-serif}
-.tab-btn{padding:10px 16px;border-bottom:2px solid transparent;font-size:14px;white-space:nowrap;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;color:#374151}
-.tab-btn.active{border-bottom-color:#dc2626;color:#dc2626;font-weight:600}
-.tab-pane{display:none}.tab-pane.active{display:block}
-.prd-btn{padding:4px 10px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;cursor:pointer;background:white}
-.prd-btn.active{background:#dc2626;color:white;border-color:#dc2626}
-.kpi-card{border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:white}
-.kpi-label{font-size:12px;color:#6b7280;margin-bottom:4px}
-.kpi-value{font-size:22px;font-weight:700;color:#111827}
-.kpi-delta{font-size:12px;margin-top:4px}
-.up{color:#16a34a}.down{color:#dc2626}
-table{width:100%;border-collapse:collapse}
-th{background:#f9fafb;padding:8px 12px;text-align:left;font-size:13px;font-weight:600;border-bottom:1px solid #e5e7eb}
-td{padding:8px 12px;font-size:13px;border-bottom:1px solid #f3f4f6}
-tr:hover td{background:#fef2f2}
-input,select,textarea{border:1px solid #d1d5db;border-radius:6px;padding:8px 10px;font-size:13px;width:100%;box-sizing:border-box;outline:none}
-input:focus,select:focus,textarea:focus{border-color:#dc2626}
+/* ── Shadcn UI Design Tokens ─────────────────────────── */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --radius: 0.5rem;
+  --brand: 221.2 83.2% 53.3%;
+}
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 217.2 32.6% 10%;
+  --card-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, sans-serif; background: hsl(var(--background)); color: hsl(var(--foreground)); transition: background-color 0.25s, color 0.25s; min-height: 100vh; font-size: 14px; }
+
+/* ── Header ─────────────────────────────────────────── */
+.app-header { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); padding: 0 20px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 30; }
+.header-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+.logo-icon { width: 28px; height: 28px; background: hsl(var(--brand)); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+
+/* ── Tab Nav ─────────────────────────────────────────── */
+.tab-nav { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); padding: 0 20px; display: flex; overflow-x: auto; position: sticky; top: 54px; z-index: 20; scrollbar-width: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn { flex-shrink: 0; padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer; background: none; border: none; border-bottom: 2px solid transparent; color: hsl(var(--muted-foreground)); transition: all 0.15s; white-space: nowrap; }
+.tab-btn.active { color: hsl(var(--brand)); border-bottom-color: hsl(var(--brand)); }
+.tab-btn:hover:not(.active) { color: hsl(var(--foreground)); background: hsl(var(--accent)); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── Period Buttons ──────────────────────────────────── */
+.period-btn { padding: 5px 11px; font-size: 12px; font-weight: 500; border-radius: 6px; border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--foreground)); cursor: pointer; transition: all 0.12s; white-space: nowrap; }
+.period-btn.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; }
+.period-btn:hover:not(.active) { background: hsl(var(--accent)); }
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; font-size: 13px; font-weight: 500; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
+.btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-brand { background: hsl(var(--brand)); color: white; }
+.btn-brand:hover { opacity: 0.9; }
+.btn-outline { background: transparent; color: hsl(var(--foreground)); border: 1px solid hsl(var(--border)); }
+.btn-outline:hover { background: hsl(var(--accent)); }
+.btn-ghost { background: transparent; color: hsl(var(--muted-foreground)); }
+.btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.btn-sm { padding: 4px 10px; font-size: 12px; border-radius: 5px; }
+.btn-icon { padding: 7px; border-radius: var(--radius); }
+
+/* ── Card ────────────────────────────────────────────── */
+.card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); }
+.card-header { padding: 14px 16px; border-bottom: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 13px; font-weight: 600; }
+.card-body { padding: 16px; }
+
+/* ── KPI Card ────────────────────────────────────────── */
+.kpi-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); }
+.kpi-value { font-size: 22px; font-weight: 700; color: hsl(var(--foreground)); line-height: 1.2; }
+.kpi-sub { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.kpi-delta { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; padding: 1px 5px; border-radius: 4px; }
+.delta-up { background: #dcfce7; color: #16a34a; }
+.delta-down { background: #fee2e2; color: #dc2626; }
+.delta-neutral { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
+.dark .delta-up { background: #14532d; color: #4ade80; }
+.dark .delta-down { background: #7f1d1d; color: #f87171; }
+
+/* ── Badge ───────────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; gap: 3px; }
+.badge-green { background: #dcfce7; color: #16a34a; }
+.badge-red { background: #fee2e2; color: #dc2626; }
+.badge-blue { background: #dbeafe; color: #2563eb; }
+.badge-yellow { background: #fef9c3; color: #ca8a04; }
+.badge-gray { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
+.dark .badge-green { background: #14532d; color: #4ade80; }
+.dark .badge-red { background: #7f1d1d; color: #f87171; }
+.dark .badge-blue { background: #1e3a5f; color: #60a5fa; }
+.dark .badge-yellow { background: #713f12; color: #fbbf24; }
+
+/* ── Table ───────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid hsl(var(--border)); cursor: pointer; user-select: none; white-space: nowrap; position: relative; }
+.data-table th:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+.data-table th.sort-asc::after { content: ' ↑'; color: hsl(var(--brand)); }
+.data-table th.sort-desc::after { content: ' ↓'; color: hsl(var(--brand)); }
+.data-table td { padding: 9px 12px; border-bottom: 1px solid hsl(var(--border)); color: hsl(var(--foreground)); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: hsl(var(--accent)); }
+.data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── Form ────────────────────────────────────────────── */
+.form-label { font-size: 12px; font-weight: 500; color: hsl(var(--foreground)); margin-bottom: 5px; display: block; }
+.form-input { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: var(--radius); padding: 8px 10px; font-size: 13px; color: hsl(var(--foreground)); width: 100%; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.form-input:focus { border-color: hsl(var(--brand)); box-shadow: 0 0 0 3px hsl(var(--brand) / 0.15); }
+.form-select { background: hsl(var(--background)); border: 1px solid hsl(var(--input)); border-radius: var(--radius); padding: 8px 10px; font-size: 13px; color: hsl(var(--foreground)); width: 100%; outline: none; cursor: pointer; }
+
+/* ── Range Slider ────────────────────────────────────── */
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: hsl(var(--secondary)); border-radius: 2px; outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: hsl(var(--brand)); border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+
+/* ── Progress ────────────────────────────────────────── */
+.progress { height: 6px; background: hsl(var(--secondary)); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+/* ── Channel Filter ──────────────────────────────────── */
+.ch-btn { padding: 5px 12px; font-size: 12px; font-weight: 500; border-radius: 6px; border: 1px solid hsl(var(--border)); background: transparent; color: hsl(var(--muted-foreground)); cursor: pointer; transition: all 0.12s; }
+.ch-btn.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: transparent; }
+.ch-btn:hover:not(.active) { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+
+/* ── Alert / Insight ─────────────────────────────────── */
+.alert { border-radius: var(--radius); padding: 14px 16px; border: 1px solid; }
+.alert-red { background: hsl(0 100% 97%); border-color: hsl(0 84% 60% / 0.3); }
+.alert-green { background: hsl(142 100% 97%); border-color: hsl(142 71% 45% / 0.3); }
+.alert-blue { background: hsl(221 100% 97%); border-color: hsl(221 83% 53% / 0.3); }
+.dark .alert-red { background: hsl(0 62% 8%); border-color: hsl(0 84% 60% / 0.4); }
+.dark .alert-green { background: hsl(142 62% 6%); border-color: hsl(142 71% 45% / 0.4); }
+.dark .alert-blue { background: hsl(221 80% 8%); border-color: hsl(221 83% 53% / 0.4); }
+
+/* ── Modal ───────────────────────────────────────────── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(3px); padding: 16px; }
+.modal-box { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) + 4px); padding: 24px; width: 440px; max-width: 100%; box-shadow: 0 25px 60px rgba(0,0,0,0.15); }
+.modal-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+
+/* ── Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+
+/* ── Divider ─────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid hsl(var(--border)); }
+
+/* ── Stat Table Row Highlight ────────────────────────── */
+.row-best td:first-child { font-weight: 600; }
+.row-best td { background: hsl(var(--brand) / 0.05) !important; }
+
+/* ── Dark mode toggle ────────────────────────────────── */
+.theme-toggle { width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid hsl(var(--border)); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground)); transition: all 0.15s; font-size: 15px; }
+.theme-toggle:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+
+/* ── Notification bell ───────────────────────────────── */
+.notif-wrap { position: relative; }
+.notif-dot { width: 7px; height: 7px; background: #ef4444; border-radius: 50%; position: absolute; top: 4px; right: 4px; border: 1.5px solid hsl(var(--card)); }
+
+/* ── Layout ──────────────────────────────────────────── */
+.page { padding: 20px; max-width: 1360px; margin: 0 auto; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 900px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 540px) {
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Stat box (for A/B) ──────────────────────────────── */
+.stat-box { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: var(--radius); padding: 12px 14px; }
+.stat-box .label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: hsl(var(--muted-foreground)); }
+.stat-box .val { font-size: 20px; font-weight: 700; }
+
+/* ── Tooltip ─────────────────────────────────────────── */
+[title] { cursor: help; }
+
+/* ── Section title ───────────────────────────────────── */
+.section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: hsl(var(--muted-foreground)); margin-bottom: 10px; }
+
+/* ── Winner chip ─────────────────────────────────────── */
+.winner-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: hsl(var(--brand) / 0.12); color: hsl(var(--brand)); border-radius: 9999px; font-size: 11px; font-weight: 600; }
+
+/* ── Insight icon ────────────────────────────────────── */
+.ins-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+/* ── Budget result card ──────────────────────────────── */
+.result-card { background: hsl(var(--brand) / 0.06); border: 1px solid hsl(var(--brand) / 0.25); border-radius: var(--radius); padding: 16px; }
+
+/* ── Focus ring ──────────────────────────────────────── */
+button:focus-visible { outline: 2px solid hsl(var(--brand)); outline-offset: 2px; }
 </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body>
 
-<div class="bg-white border-b px-6 py-3 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-  <h1 class="text-lg font-bold">Meta Ads Dashboard</h1>
-  <div class="flex gap-2">
-    <button class="prd-btn active" onclick="setPeriod(0,this)">1일</button>
-    <button class="prd-btn" onclick="setPeriod(1,this)">7일</button>
-    <button class="prd-btn" onclick="setPeriod(2,this)">14일</button>
-    <button class="prd-btn" onclick="setPeriod(3,this)">21일</button>
-    <button class="prd-btn" onclick="setPeriod(4,this)">이달</button>
+<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-logo">
+    <div class="logo-icon">A</div>
+    <span>Ad Dashboard</span>
+    <span style="font-size:11px;font-weight:400;color:hsl(var(--muted-foreground));margin-left:2px;">v2.0</span>
   </div>
-</div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div style="display:flex;gap:4px;" id="period-btns">
+      <button class="period-btn active" onclick="setPeriod(0,this)">오늘</button>
+      <button class="period-btn" onclick="setPeriod(1,this)">7일</button>
+      <button class="period-btn" onclick="setPeriod(2,this)">14일</button>
+      <button class="period-btn" onclick="setPeriod(3,this)">21일</button>
+      <button class="period-btn" onclick="setPeriod(4,this)">이달</button>
+    </div>
+    <div class="header-right">
+      <div class="notif-wrap">
+        <button class="theme-toggle" title="알림" onclick="showTab('insights',document.querySelector('.tab-btn:nth-child(7)'))">🔔</button>
+        <div class="notif-dot"></div>
+      </div>
+      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="다크모드 전환">🌙</button>
+    </div>
+  </div>
+</header>
 
-<div class="bg-white border-b px-4 flex overflow-x-auto sticky top-14 z-10">
+<!-- ═══ TAB NAV ══════════════════════════════════════════════ -->
+<nav class="tab-nav">
   <button class="tab-btn active" onclick="showTab('overview',this)">개요</button>
-  <button class="tab-btn" onclick="showTab('detail',this)">개요 상세</button>
-  <button class="tab-btn" onclick="showTab('channel',this)">채널 상세</button>
+  <button class="tab-btn" onclick="showTab('detail',this)">상세 성과</button>
+  <button class="tab-btn" onclick="showTab('channel',this)">채널 분석</button>
   <button class="tab-btn" onclick="showTab('sa',this)">SA 상세</button>
   <button class="tab-btn" onclick="showTab('budget',this)">예산 플래너</button>
   <button class="tab-btn" onclick="showTab('ab',this)">A/B 테스트</button>
   <button class="tab-btn" onclick="showTab('insights',this)">인사이트</button>
   <button class="tab-btn" onclick="showTab('actions',this)">액션 기록</button>
-  <button class="tab-btn" onclick="showTab('theme',this)">테마</button>
+  <button class="tab-btn" onclick="showTab('settings',this)">설정</button>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═════════════════════════════════════════ -->
+<main>
+
+<!-- ─── Overview ─────────────────────────────────────────── -->
+<div id="pane-overview" class="tab-pane active page">
+  <!-- KPI row -->
+  <div class="grid-4 mb-5" id="kpi-grid"></div>
+
+  <!-- Charts row 1 -->
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">일별 노출 / 클릭 추이</span>
+        <button class="btn btn-outline btn-sm" onclick="exportChart('chart-trend')">↓ PNG</button>
+      </div>
+      <div class="card-body"><canvas id="chart-trend" height="200"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">채널별 비용 비중</span>
+      </div>
+      <div class="card-body"><canvas id="chart-pie" height="200"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts row 2 -->
+  <div class="grid-3 mb-4">
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널별 CVR (%)</span></div>
+      <div class="card-body"><canvas id="chart-cvr" height="180"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">CPC 추이</span></div>
+      <div class="card-body"><canvas id="chart-cpc" height="180"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널 성과 레이더</span></div>
+      <div class="card-body"><canvas id="chart-radar" height="180"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Pacing row -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">이달 KPI 달성률</span>
+      <span style="font-size:12px;color:hsl(var(--muted-foreground));">목표 대비 현재</span>
+    </div>
+    <div class="card-body">
+      <div id="pacing-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;"></div>
+    </div>
+  </div>
 </div>
 
-<div class="p-6 max-w-7xl mx-auto">
-
-<div id="pane-overview" class="tab-pane active">
-  <div class="grid grid-cols-4 gap-3 mb-6" id="kpi-grid"></div>
-  <div class="grid grid-cols-2 gap-4 mb-4">
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">일별 노출/클릭 추이</h3><canvas id="chart-trend" height="180"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 비용 비중</h3><canvas id="chart-pie" height="180"></canvas></div>
-  </div>
-  <div class="grid grid-cols-3 gap-4">
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 CVR</h3><canvas id="chart-cvr" height="160"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">CPC 추이</h3><canvas id="chart-cpc" height="160"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널 성과 레이더</h3><canvas id="chart-radar" height="160"></canvas></div>
-  </div>
-</div>
-
-<div id="pane-detail" class="tab-pane">
-  <div class="bg-white border rounded-xl overflow-hidden shadow-sm mb-4">
-    <div class="px-4 py-3 border-b bg-gray-50 font-semibold text-sm">채널별 상세 성과</div>
-    <table><thead><tr><th>채널</th><th>노출</th><th>클릭</th><th>CTR</th><th>비용</th><th>CPC</th><th>전환</th><th>CVR</th></tr></thead>
-    <tbody id="detail-tbody"></tbody></table>
-  </div>
-  <div class="grid grid-cols-2 gap-4">
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 전환수</h3><canvas id="chart-d1" height="200"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 CTR (%)</h3><canvas id="chart-d2" height="200"></canvas></div>
-  </div>
-</div>
-
-<div id="pane-channel" class="tab-pane">
-  <div class="flex gap-2 mb-4" id="ch-filter">
-    <button class="prd-btn active" onclick="setChannel('전체',this)">전체</button>
-    <button class="prd-btn" onclick="setChannel('Helper',this)">Helper</button>
-    <button class="prd-btn" onclick="setChannel('CPF',this)">CPF</button>
-    <button class="prd-btn" onclick="setChannel('FA',this)">FA</button>
-    <button class="prd-btn" onclick="setChannel('HL',this)">HL</button>
-    <button class="prd-btn" onclick="setChannel('MCL',this)">MCL</button>
-  </div>
-  <div class="grid grid-cols-4 gap-3 mb-4" id="ch-kpi"></div>
-  <div class="grid grid-cols-2 gap-4">
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">일별 전환 추이</h3><canvas id="chart-ch1" height="200"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 비용 vs 전환</h3><canvas id="chart-ch2" height="200"></canvas></div>
-  </div>
-</div>
-
-<div id="pane-sa" class="tab-pane">
-  <div class="grid grid-cols-4 gap-3 mb-4">
-    <div class="kpi-card"><div class="kpi-label">SA 노출</div><div class="kpi-value">28,450</div><div class="kpi-delta up">&#9650; 12.3%</div></div>
-    <div class="kpi-card"><div class="kpi-label">SA 클릭</div><div class="kpi-value">1,823</div><div class="kpi-delta up">&#9650; 8.7%</div></div>
-    <div class="kpi-card"><div class="kpi-label">SA CTR</div><div class="kpi-value">6.40%</div><div class="kpi-delta up">&#9650; 0.3%p</div></div>
-    <div class="kpi-card"><div class="kpi-label">SA CPC</div><div class="kpi-value">&#8361;342</div><div class="kpi-delta down">&#9660; 5.2%</div></div>
-  </div>
-  <div class="bg-white border rounded-xl overflow-hidden shadow-sm mb-4">
-    <div class="px-4 py-3 border-b bg-gray-50 font-semibold text-sm">키워드별 성과</div>
-    <table><thead><tr><th>키워드</th><th>노출</th><th>클릭</th><th>CTR</th><th>CPC</th><th>전환</th></tr></thead>
-    <tbody>
-      <tr><td>브랜드 키워드A</td><td>8,234</td><td>612</td><td>7.43%</td><td>&#8361;298</td><td>34</td></tr>
-      <tr><td>경쟁사 키워드B</td><td>6,128</td><td>398</td><td>6.50%</td><td>&#8361;412</td><td>18</td></tr>
-      <tr><td>일반 키워드C</td><td>5,891</td><td>342</td><td>5.81%</td><td>&#8361;387</td><td>22</td></tr>
-      <tr><td>장기 키워드D</td><td>4,231</td><td>289</td><td>6.83%</td><td>&#8361;267</td><td>28</td></tr>
-      <tr><td>시즈널 키워드E</td><td>3,966</td><td>182</td><td>4.59%</td><td>&#8361;523</td><td>11</td></tr>
-    </tbody></table>
-  </div>
-  <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">SA 일별 성과 추이</h3><canvas id="chart-sa" height="150"></canvas></div>
-</div>
-
-<div id="pane-budget" class="tab-pane">
-  <div class="grid grid-cols-2 gap-6">
-    <div class="bg-white border rounded-xl p-6 shadow-sm">
-      <h3 class="font-semibold mb-4">예산 시뮬레이션</h3>
-      <div class="mb-3"><label class="block text-sm font-medium mb-1">월 예산 (원)</label><input type="number" id="b-budget" value="10000000" oninput="calcBudget()"></div>
-      <div class="mb-3"><label class="block text-sm font-medium mb-1">목표 CVR (%)</label><input type="number" id="b-cvr" value="5.0" step="0.1" oninput="calcBudget()"></div>
-      <div class="mb-4"><label class="block text-sm font-medium mb-1">평균 CPC (원)</label><input type="number" id="b-cpc" value="527" oninput="calcBudget()"></div>
-      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div class="text-sm font-semibold text-red-700 mb-2">예상 결과</div>
-        <div id="b-result" class="text-sm space-y-1"></div>
+<!-- ─── Detail ───────────────────────────────────────────── -->
+<div id="pane-detail" class="tab-pane page">
+  <div class="card mb-4">
+    <div class="card-header">
+      <span class="card-title">채널별 상세 성과</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input class="form-input" style="width:160px;padding:5px 10px;font-size:12px;" placeholder="검색..." oninput="filterDetailTable(this.value)" id="detail-search">
+        <button class="btn btn-outline btn-sm" onclick="exportTableCSV('detail-tbody','채널별성과')">↓ CSV</button>
       </div>
     </div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 예산 배분</h3><canvas id="chart-budget" height="260"></canvas></div>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('detail-tbody',0,this)">채널</th>
+            <th onclick="sortTable('detail-tbody',1,this)" class="num">노출</th>
+            <th onclick="sortTable('detail-tbody',2,this)" class="num">클릭</th>
+            <th onclick="sortTable('detail-tbody',3,this)" class="num">CTR</th>
+            <th onclick="sortTable('detail-tbody',4,this)" class="num">비용</th>
+            <th onclick="sortTable('detail-tbody',5,this)" class="num">CPC</th>
+            <th onclick="sortTable('detail-tbody',6,this)" class="num">전환</th>
+            <th onclick="sortTable('detail-tbody',7,this)" class="num">CVR</th>
+            <th class="num">달성률</th>
+          </tr>
+        </thead>
+        <tbody id="detail-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널별 전환수</span></div>
+      <div class="card-body"><canvas id="chart-d1" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널별 CTR (%)</span></div>
+      <div class="card-body"><canvas id="chart-d2" height="220"></canvas></div>
+    </div>
   </div>
 </div>
 
-<div id="pane-ab" class="tab-pane">
-  <div class="grid grid-cols-2 gap-6 mb-4">
-    <div class="bg-white border rounded-xl p-5 shadow-sm">
-      <div class="flex items-center gap-2 mb-1"><h3 class="font-semibold">안 A</h3><span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">현재 집행</span></div>
-      <p class="text-xs text-gray-500 mb-4">기존 소재 + 브랜드 키워드</p>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value text-xl">5.12%</div></div>
-        <div class="kpi-card"><div class="kpi-label">CVR</div><div class="kpi-value text-xl">5.25%</div></div>
-        <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value text-xl">&#8361;527</div></div>
-        <div class="kpi-card"><div class="kpi-label">전환수</div><div class="kpi-value text-xl">123</div></div>
+<!-- ─── Channel ──────────────────────────────────────────── -->
+<div id="pane-channel" class="tab-pane page">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="ch-filter">
+    <button class="ch-btn active" onclick="setChannel('전체',this)">전체</button>
+    <button class="ch-btn" onclick="setChannel('Helper',this)">Helper</button>
+    <button class="ch-btn" onclick="setChannel('CPF',this)">CPF</button>
+    <button class="ch-btn" onclick="setChannel('FA',this)">FA</button>
+    <button class="ch-btn" onclick="setChannel('HL',this)">HL</button>
+    <button class="ch-btn" onclick="setChannel('MCL',this)">MCL</button>
+  </div>
+  <div class="grid-4 mb-4" id="ch-kpi"></div>
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header"><span class="card-title">일별 전환 추이</span></div>
+      <div class="card-body"><canvas id="chart-ch1" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널별 비용 vs 전환</span></div>
+      <div class="card-body"><canvas id="chart-ch2" height="220"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">채널별 시간대 성과 히트맵 (시간대별 CTR)</span></div>
+    <div class="card-body">
+      <div id="heatmap-wrap" style="overflow-x:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SA ───────────────────────────────────────────────── -->
+<div id="pane-sa" class="tab-pane page">
+  <div class="grid-4 mb-4">
+    <div class="kpi-card">
+      <div class="kpi-label">SA 노출</div>
+      <div class="kpi-value">28,450</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-up">↑ 12.3%</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">SA 클릭</div>
+      <div class="kpi-value">1,823</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-up">↑ 8.7%</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">SA CTR</div>
+      <div class="kpi-value">6.40%</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-up">↑ 0.3%p</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">SA CPC</div>
+      <div class="kpi-value">₩342</div>
+      <div class="kpi-sub"><span class="kpi-delta delta-down">↓ 5.2%</span></div>
+    </div>
+  </div>
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">키워드별 성과</span>
+        <button class="btn btn-outline btn-sm" onclick="exportTableCSV('sa-tbody','키워드성과')">↓ CSV</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('sa-tbody',0,this)">키워드</th>
+              <th onclick="sortTable('sa-tbody',1,this)" class="num">노출</th>
+              <th onclick="sortTable('sa-tbody',2,this)" class="num">클릭</th>
+              <th onclick="sortTable('sa-tbody',3,this)" class="num">CTR</th>
+              <th onclick="sortTable('sa-tbody',4,this)" class="num">CPC</th>
+              <th onclick="sortTable('sa-tbody',5,this)" class="num">전환</th>
+              <th>품질지수</th>
+            </tr>
+          </thead>
+          <tbody id="sa-tbody">
+            <tr><td>브랜드 키워드A</td><td class="num">8,234</td><td class="num">612</td><td class="num">7.43%</td><td class="num">₩298</td><td class="num">34</td><td><span class="badge badge-green">◆◆◆◆◆ 10</span></td></tr>
+            <tr><td>경쟁사 키워드B</td><td class="num">6,128</td><td class="num">398</td><td class="num">6.50%</td><td class="num">₩412</td><td class="num">18</td><td><span class="badge badge-blue">◆◆◆◆ 8</span></td></tr>
+            <tr><td>일반 키워드C</td><td class="num">5,891</td><td class="num">342</td><td class="num">5.81%</td><td class="num">₩387</td><td class="num">22</td><td><span class="badge badge-blue">◆◆◆◆ 7</span></td></tr>
+            <tr><td>장기 키워드D</td><td class="num">4,231</td><td class="num">289</td><td class="num">6.83%</td><td class="num">₩267</td><td class="num">28</td><td><span class="badge badge-green">◆◆◆◆◆ 9</span></td></tr>
+            <tr><td>시즈널 키워드E</td><td class="num">3,966</td><td class="num">182</td><td class="num">4.59%</td><td class="num">₩523</td><td class="num">11</td><td><span class="badge badge-yellow">◆◆◆ 5</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="bg-white border rounded-xl p-5 shadow-sm">
-      <div class="flex items-center gap-2 mb-1"><h3 class="font-semibold">안 B</h3><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">테스트 중</span></div>
-      <p class="text-xs text-gray-500 mb-4">신규 소재 + 확장 키워드</p>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value text-xl">6.34%</div></div>
-        <div class="kpi-card"><div class="kpi-label">CVR</div><div class="kpi-value text-xl">6.12%</div></div>
-        <div class="kpi-card"><div class="kpi-label">CPC</div><div class="kpi-value text-xl">&#8361;489</div></div>
-        <div class="kpi-card"><div class="kpi-label">전환수</div><div class="kpi-value text-xl">142</div></div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">SA 일별 성과 추이</span></div>
+      <div class="card-body"><canvas id="chart-sa" height="220"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">입찰 포지션 분포</span></div>
+    <div class="card-body"><canvas id="chart-sa2" height="130"></canvas></div>
+  </div>
+</div>
+
+<!-- ─── Budget ───────────────────────────────────────────── -->
+<div id="pane-budget" class="tab-pane page">
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header"><span class="card-title">예산 시뮬레이션</span></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px;">
+        <div>
+          <label class="form-label">월 예산 (원) — <strong id="b-budget-disp">10,000,000</strong></label>
+          <input type="range" id="b-budget" min="1000000" max="50000000" step="500000" value="10000000" oninput="onBudgetSlider()">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:hsl(var(--muted-foreground));margin-top:3px;"><span>100만</span><span>5,000만</span></div>
+        </div>
+        <div>
+          <label class="form-label">목표 CVR (%) — <strong id="b-cvr-disp">5.0</strong>%</label>
+          <input type="range" id="b-cvr" min="1" max="20" step="0.1" value="5.0" oninput="onBudgetSlider()">
+        </div>
+        <div>
+          <label class="form-label">평균 CPC (원) — <strong id="b-cpc-disp">527</strong>원</label>
+          <input type="range" id="b-cpc" min="100" max="3000" step="10" value="527" oninput="onBudgetSlider()">
+        </div>
+        <div>
+          <label class="form-label">목표 CPA (원)</label>
+          <input type="number" id="b-target-cpa" class="form-input" value="12000" oninput="onBudgetSlider()">
+        </div>
+        <div class="result-card" id="b-result"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">채널별 예산 배분</span>
+        <button class="btn btn-outline btn-sm" onclick="randomizeBudget()">자동 최적화</button>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:10px;" id="budget-alloc-sliders">
       </div>
     </div>
   </div>
-  <div class="bg-white border rounded-xl p-4 shadow-sm mb-4"><h3 class="font-semibold mb-3 text-sm">A vs B 성과 비교</h3><canvas id="chart-ab" height="140"></canvas></div>
-  <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-    <div class="font-semibold text-green-800 mb-1">통계적 유의성 분석</div>
-    <div class="text-sm text-green-700">신뢰도 95% 기준 안 B가 CTR +23.8%, CVR +16.6%, CPC -7.2% 우세. <b>안 B 전환 권장.</b></div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">예산 페이싱 (이달 집행 현황)</span></div>
+    <div class="card-body"><canvas id="chart-budget-pacing" height="130"></canvas></div>
   </div>
 </div>
 
-<div id="pane-insights" class="tab-pane">
-  <div class="grid grid-cols-3 gap-4 mb-5">
-    <div class="bg-red-50 border-l-4 border-red-500 rounded-r-xl p-4">
-      <div class="text-xs font-bold text-red-600 mb-1">주의 필요</div>
-      <div class="font-semibold text-sm mb-1">CPF 채널 CPC 급등</div>
-      <div class="text-xs text-gray-600">전주 대비 23.5% 상승. 입찰 전략 검토 필요.</div>
+<!-- ─── A/B ──────────────────────────────────────────────── -->
+<div id="pane-ab" class="tab-pane page">
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">안 A</span>
+        <span class="badge badge-gray">현재 집행</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:hsl(var(--muted-foreground));margin-bottom:14px;">기존 소재 + 브랜드 키워드</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="ab-a-stats"></div>
+      </div>
     </div>
-    <div class="bg-green-50 border-l-4 border-green-500 rounded-r-xl p-4">
-      <div class="text-xs font-bold text-green-600 mb-1">긍정 신호</div>
-      <div class="font-semibold text-sm mb-1">Helper 채널 CVR 개선</div>
-      <div class="text-xs text-gray-600">소재 업데이트 후 CVR 15.2% 향상.</div>
-    </div>
-    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4">
-      <div class="text-xs font-bold text-blue-600 mb-1">기회 발견</div>
-      <div class="font-semibold text-sm mb-1">FA 채널 예산 확대 권장</div>
-      <div class="text-xs text-gray-600">ROAS 최상위. 예산 20% 증액 시 전환 +34건 예상.</div>
+    <div class="card" style="border-color:hsl(var(--brand) / 0.4);">
+      <div class="card-header">
+        <span class="card-title">안 B</span>
+        <span class="badge badge-blue">테스트 중</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12px;color:hsl(var(--muted-foreground));margin-bottom:14px;">신규 소재 + 확장 키워드</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" id="ab-b-stats"></div>
+      </div>
     </div>
   </div>
-  <div class="grid grid-cols-2 gap-4">
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">주간 성과 변화율 (%)</h3><canvas id="chart-ins1" height="200"></canvas></div>
-    <div class="bg-white border rounded-xl p-4 shadow-sm"><h3 class="font-semibold mb-3 text-sm">채널별 효율 지수</h3><canvas id="chart-ins2" height="200"></canvas></div>
+  <div class="grid-2 mb-4">
+    <div class="card">
+      <div class="card-header"><span class="card-title">A vs B 성과 비교</span></div>
+      <div class="card-body"><canvas id="chart-ab" height="200"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">개선율 상세</span></div>
+      <div class="card-body" id="ab-improvement"></div>
+    </div>
   </div>
-</div>
-
-<div id="pane-actions" class="tab-pane">
-  <div class="flex justify-between items-center mb-4">
-    <p class="text-sm text-gray-500">광고 운영 액션 이력 관리</p>
-    <button onclick="openModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ 액션 추가</button>
-  </div>
-  <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
-    <table><thead><tr><th>날짜</th><th>채널</th><th>액션 내용</th><th>담당자</th><th>상태</th></tr></thead>
-    <tbody id="action-tbody">
-      <tr><td>2025-05-10</td><td>Helper</td><td>소재 교체 - 5월 시즌 버전 적용</td><td>김마케터</td><td><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">완료</span></td></tr>
-      <tr><td>2025-05-09</td><td>CPF</td><td>입찰가 조정 -10%</td><td>이담당</td><td><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">완료</span></td></tr>
-      <tr><td>2025-05-08</td><td>FA</td><td>예산 증액 +20%</td><td>박팀장</td><td><span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">완료</span></td></tr>
-      <tr><td>2025-05-07</td><td>전체</td><td>주간 보고서 작성 및 공유</td><td>김마케터</td><td><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">진행중</span></td></tr>
-      <tr><td>2025-05-05</td><td>HL</td><td>A/B 테스트 소재 세팅</td><td>이담당</td><td><span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">검토중</span></td></tr>
-    </tbody></table>
-  </div>
-</div>
-
-<div id="pane-theme" class="tab-pane">
-  <h2 class="font-semibold mb-4">테마 설정</h2>
-  <div class="grid grid-cols-3 gap-4 max-w-lg">
-    <div class="bg-white border-2 border-red-500 rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('레드')">
-      <div class="w-10 h-10 bg-red-600 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">레드 (현재)</div>
-    </div>
-    <div class="bg-white border rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('블루')">
-      <div class="w-10 h-10 bg-blue-600 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">블루</div>
-    </div>
-    <div class="bg-white border rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('그린')">
-      <div class="w-10 h-10 bg-green-600 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">그린</div>
-    </div>
-    <div class="bg-white border rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('퍼플')">
-      <div class="w-10 h-10 bg-purple-600 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">퍼플</div>
-    </div>
-    <div class="bg-white border rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('오렌지')">
-      <div class="w-10 h-10 bg-orange-600 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">오렌지</div>
-    </div>
-    <div class="bg-white border rounded-xl p-4 cursor-pointer text-center" onclick="applyTheme('다크')">
-      <div class="w-10 h-10 bg-gray-900 rounded-full mx-auto mb-2"></div><div class="text-sm font-medium">다크</div>
+  <div class="alert alert-green" style="display:flex;align-items:flex-start;gap:12px;">
+    <div style="font-size:22px;line-height:1;">✅</div>
+    <div>
+      <div style="font-weight:600;margin-bottom:4px;color:#16a34a;">통계적 유의성 분석 — 신뢰도 95% 달성</div>
+      <div style="font-size:13px;color:hsl(var(--foreground));">안 B가 CTR <strong>+23.8%</strong>, CVR <strong>+16.6%</strong>, CPC <strong>-7.2%</strong> 우세합니다. <strong>안 B 전환을 권장합니다.</strong></div>
     </div>
   </div>
 </div>
 
-</div>
-
-<div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-2xl p-6 w-96 shadow-xl">
-    <h3 class="text-base font-semibold mb-4">새 액션 추가</h3>
-    <div class="mb-3"><label class="block text-sm font-medium mb-1">날짜</label><input type="date" id="m-date"></div>
-    <div class="mb-3"><label class="block text-sm font-medium mb-1">채널</label>
-      <select id="m-ch"><option>전체</option><option>Helper</option><option>CPF</option><option>FA</option><option>HL</option><option>MCL</option></select>
+<!-- ─── Insights ─────────────────────────────────────────── -->
+<div id="pane-insights" class="tab-pane page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <h2 style="font-size:15px;font-weight:600;">자동화 인사이트</h2>
+    <span style="font-size:12px;color:hsl(var(--muted-foreground));">최근 업데이트: 오늘 09:00</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;" id="insight-list"></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">주간 성과 변화율 (%)</span></div>
+      <div class="card-body"><canvas id="chart-ins1" height="220"></canvas></div>
     </div>
-    <div class="mb-3"><label class="block text-sm font-medium mb-1">액션 내용</label><textarea id="m-desc" rows="2"></textarea></div>
-    <div class="mb-4"><label class="block text-sm font-medium mb-1">담당자</label><input type="text" id="m-person"></div>
-    <div class="flex gap-3">
-      <button onclick="saveAction()" class="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700">저장</button>
-      <button onclick="closeModal()" class="flex-1 border py-2 rounded-lg text-sm">취소</button>
+    <div class="card">
+      <div class="card-header"><span class="card-title">채널별 효율 지수 (레이더)</span></div>
+      <div class="card-body"><canvas id="chart-ins2" height="220"></canvas></div>
     </div>
   </div>
 </div>
+
+<!-- ─── Actions ──────────────────────────────────────────── -->
+<div id="pane-actions" class="tab-pane page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div style="display:flex;gap:6px;align-items:center;">
+      <select class="form-select" style="width:auto;font-size:12px;padding:5px 8px;" onchange="filterActions(this.value)" id="action-filter">
+        <option value="">전체 채널</option>
+        <option>Helper</option><option>CPF</option><option>FA</option><option>HL</option><option>MCL</option><option>전체</option>
+      </select>
+      <select class="form-select" style="width:auto;font-size:12px;padding:5px 8px;" onchange="filterActionStatus(this.value)" id="status-filter">
+        <option value="">전체 상태</option>
+        <option>완료</option><option>진행중</option><option>검토중</option><option>신규</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-outline btn-sm" onclick="exportTableCSV('action-tbody','액션기록')">↓ CSV</button>
+      <button class="btn btn-brand btn-sm" onclick="openModal()">+ 액션 추가</button>
+    </div>
+  </div>
+  <div class="card">
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('action-tbody',0,this)">날짜</th>
+            <th onclick="sortTable('action-tbody',1,this)">채널</th>
+            <th>액션 내용</th>
+            <th onclick="sortTable('action-tbody',3,this)">담당자</th>
+            <th>상태</th>
+            <th>효과</th>
+          </tr>
+        </thead>
+        <tbody id="action-tbody">
+          <tr data-ch="Helper" data-st="완료">
+            <td>2025-05-10</td><td><span class="badge badge-blue">Helper</span></td>
+            <td>소재 교체 — 5월 시즌 버전 적용</td><td>김마케터</td>
+            <td><span class="badge badge-green">완료</span></td>
+            <td style="font-size:12px;color:#16a34a;">CTR +8%</td>
+          </tr>
+          <tr data-ch="CPF" data-st="완료">
+            <td>2025-05-09</td><td><span class="badge badge-yellow">CPF</span></td>
+            <td>입찰가 조정 -10%</td><td>이담당</td>
+            <td><span class="badge badge-green">완료</span></td>
+            <td style="font-size:12px;color:#16a34a;">CPC -6%</td>
+          </tr>
+          <tr data-ch="FA" data-st="완료">
+            <td>2025-05-08</td><td><span class="badge badge-green">FA</span></td>
+            <td>예산 증액 +20%</td><td>박팀장</td>
+            <td><span class="badge badge-green">완료</span></td>
+            <td style="font-size:12px;color:#16a34a;">전환 +12건</td>
+          </tr>
+          <tr data-ch="전체" data-st="진행중">
+            <td>2025-05-07</td><td><span class="badge badge-gray">전체</span></td>
+            <td>주간 보고서 작성 및 공유</td><td>김마케터</td>
+            <td><span class="badge badge-blue">진행중</span></td>
+            <td style="font-size:12px;color:hsl(var(--muted-foreground));">—</td>
+          </tr>
+          <tr data-ch="HL" data-st="검토중">
+            <td>2025-05-05</td><td><span class="badge badge-gray">HL</span></td>
+            <td>A/B 테스트 소재 세팅</td><td>이담당</td>
+            <td><span class="badge badge-yellow">검토중</span></td>
+            <td style="font-size:12px;color:hsl(var(--muted-foreground));">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Settings ─────────────────────────────────────────── -->
+<div id="pane-settings" class="tab-pane page">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">목표 설정</span></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:14px;" id="target-inputs">
+        <div><label class="form-label">월 목표 전환수</label><input type="number" class="form-input" value="3000" onchange="saveTargets()"></div>
+        <div><label class="form-label">목표 CVR (%)</label><input type="number" class="form-input" step="0.1" value="5.5" onchange="saveTargets()"></div>
+        <div><label class="form-label">목표 CPA (원)</label><input type="number" class="form-input" value="12000" onchange="saveTargets()"></div>
+        <div><label class="form-label">월 예산 한도 (원)</label><input type="number" class="form-input" value="40000000" onchange="saveTargets()"></div>
+        <button class="btn btn-primary" onclick="saveTargets();alert('저장됐습니다.')">저장</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">화면 테마</span></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <button onclick="setTheme('light')" style="border:2px solid hsl(var(--border));border-radius:var(--radius);padding:14px;cursor:pointer;background:white;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="width:32px;height:32px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:50%;"></div>
+            <span style="font-size:12px;font-weight:500;color:#0f172a;">라이트</span>
+          </button>
+          <button onclick="setTheme('dark')" style="border:2px solid hsl(var(--border));border-radius:var(--radius);padding:14px;cursor:pointer;background:#0f172a;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="width:32px;height:32px;background:#1e293b;border:1px solid #334155;border-radius:50%;"></div>
+            <span style="font-size:12px;font-weight:500;color:#f8fafc;">다크</span>
+          </button>
+          <button onclick="setTheme('system')" style="border:2px solid hsl(var(--border));border-radius:var(--radius);padding:14px;cursor:pointer;background:hsl(var(--card));display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#f1f5f9 50%,#0f172a 50%);border-radius:50%;"></div>
+            <span style="font-size:12px;font-weight:500;">시스템</span>
+          </button>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid hsl(var(--border));">
+          <p class="form-label" style="margin-bottom:10px;">브랜드 컬러</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="setBrandColor('221.2 83.2% 53.3%')" style="width:28px;height:28px;background:#3b82f6;border-radius:50%;border:2px solid hsl(var(--border));cursor:pointer;" title="블루"></button>
+            <button onclick="setBrandColor('142 71% 45.3%')" style="width:28px;height:28px;background:#22c55e;border-radius:50%;border:2px solid hsl(var(--border));cursor:pointer;" title="그린"></button>
+            <button onclick="setBrandColor('0 84.2% 60.2%')" style="width:28px;height:28px;background:#ef4444;border-radius:50%;border:2px solid hsl(var(--border));cursor:pointer;" title="레드"></button>
+            <button onclick="setBrandColor('270 91% 65%')" style="width:28px;height:28px;background:#a855f7;border-radius:50%;border:2px solid hsl(var(--border));cursor:pointer;" title="퍼플"></button>
+            <button onclick="setBrandColor('24.6 95% 53.1%')" style="width:28px;height:28px;background:#f97316;border-radius:50%;border:2px solid hsl(var(--border));cursor:pointer;" title="오렌지"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══ MODAL ════════════════════════════════════════════════ -->
+<div id="modal" class="modal-bg" style="display:none;" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title">새 액션 추가</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label class="form-label">날짜</label>
+        <input type="date" id="m-date" class="form-input">
+      </div>
+      <div>
+        <label class="form-label">채널</label>
+        <select id="m-ch" class="form-select">
+          <option>전체</option><option>Helper</option><option>CPF</option><option>FA</option><option>HL</option><option>MCL</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">액션 내용</label>
+        <textarea id="m-desc" class="form-input" rows="2" style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="form-label">담당자</label>
+          <input type="text" id="m-person" class="form-input">
+        </div>
+        <div>
+          <label class="form-label">예상 효과</label>
+          <input type="text" id="m-effect" class="form-input" placeholder="예: CTR +5%">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <button onclick="saveAction()" class="btn btn-brand" style="flex:1;">저장</button>
+        <button onclick="closeModal()" class="btn btn-outline" style="flex:1;">취소</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPTS ══════════════════════════════════════════════ -->
 <script>
-const CH=['Helper','CPF','FA','HL','MCL'];
-const CL=['#dc2626','#ef4444','#f87171','#fca5a5','#94a3b8'];
-const L7=['5/4','5/5','5/6','5/7','5/8','5/9','5/10'];
-const KPI=[
-  {cls:1234,imp:45678,click:2341,ctr:5.12,cost:1234567,cpc:527,app:123,cvr:5.25},
-  {cls:8638,imp:319746,click:16387,ctr:5.12,cost:8641969,cpc:527,app:861,cvr:5.25},
-  {cls:17276,imp:639492,click:32774,ctr:5.12,cost:17283938,cpc:527,app:1722,cvr:5.25},
-  {cls:25914,imp:959238,click:49161,ctr:5.12,cost:25925907,cpc:527,app:2583,cvr:5.25},
-  {cls:37214,imp:1378452,click:70678,ctr:5.13,cost:37250266,cpc:527,app:3712,cvr:5.25}
-];
-const CD={imp:[18234,12456,7823,4312,2853],click:[934,623,412,234,138],cost:[512345,389234,234567,123456,89034],app:[52,34,23,12,8]};
-let curP=0,curCh='전체';
-const charts={};
-const fN=n=>n>=1000?n.toLocaleString('ko-KR'):String(n);
-const fW=n=>'&#8361;'+n.toLocaleString('ko-KR');
-const fP=n=>n.toFixed(2)+'%';
+/* ── Data ──────────────────────────────────────────────────── */
+const CH = ['Helper','CPF','FA','HL','MCL'];
+const CHART_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444'];
+const CHART_COLORS_ALPHA = ['rgba(59,130,246,0.7)','rgba(139,92,246,0.7)','rgba(16,185,129,0.7)','rgba(245,158,11,0.7)','rgba(239,68,68,0.7)'];
+const L7 = ['5/4','5/5','5/6','5/7','5/8','5/9','5/10'];
 
-function renderKPI(){
-  const d=KPI[curP];
-  const items=[
-    {l:'CLS',v:fN(d.cls),delta:'5.2%',up:true},{l:'IMP',v:fN(d.imp),delta:'8.7%',up:true},
-    {l:'CLICK',v:fN(d.click),delta:'3.1%',up:true},{l:'CTR',v:fP(d.ctr),delta:'0.2%p',up:false},
-    {l:'COST',v:fW(d.cost),delta:'12.3%',up:false},{l:'CPC',v:'&#8361;'+d.cpc,delta:'2.1%',up:true},
-    {l:'APP',v:fN(d.app),delta:'18.4%',up:true},{l:'CVR',v:fP(d.cvr),delta:'0.1%p',up:true}
-  ];
-  document.getElementById('kpi-grid').innerHTML=items.map(k=>
-    `<div class="kpi-card"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div>
-    <div class="kpi-delta ${k.up?'up':'down'}">${k.up?'&#9650;':'&#9660;'} ${k.delta}</div></div>`
-  ).join('');
+const KPI_DATA = [
+  {cls:1234, imp:45678, click:2341, ctr:5.12, cost:1234567, cpc:527, app:123, cvr:5.25},
+  {cls:8638, imp:319746, click:16387, ctr:5.12, cost:8641969, cpc:527, app:861, cvr:5.25},
+  {cls:17276, imp:639492, click:32774, ctr:5.12, cost:17283938, cpc:527, app:1722, cvr:5.25},
+  {cls:25914, imp:959238, click:49161, ctr:5.12, cost:25925907, cpc:527, app:2583, cvr:5.25},
+  {cls:37214, imp:1378452, click:70678, ctr:5.13, cost:37250266, cpc:527, app:3712, cvr:5.25}
+];
+
+const CH_DATA = {
+  imp:   [18234, 12456, 7823, 4312, 2853],
+  click: [934, 623, 412, 234, 138],
+  cost:  [512345, 389234, 234567, 123456, 89034],
+  app:   [52, 34, 23, 12, 8]
+};
+
+const TARGETS = { app: 3000, cvr: 5.5, cpa: 12000, budget: 40000000 };
+const INSIGHTS = [
+  { type:'red',   icon:'⚠️', tag:'주의 필요',   title:'CPF 채널 CPC 급등', desc:'전주 대비 23.5% 상승. 입찰 전략 및 품질지수 점검이 필요합니다.', action:'입찰가 조정 →' },
+  { type:'green', icon:'✅', tag:'긍정 신호',   title:'Helper 채널 CVR 개선', desc:'소재 업데이트 후 CVR이 15.2% 향상되었습니다. 소재 확장을 고려하세요.', action:'소재 복제 →' },
+  { type:'blue',  icon:'💡', tag:'기회 발견',   title:'FA 채널 예산 확대 권장', desc:'ROAS 최상위 채널입니다. 예산 20% 증액 시 전환 +34건이 예상됩니다.', action:'예산 조정 →' },
+  { type:'green', icon:'📈', tag:'목표 초과',   title:'이달 전환수 목표 93% 달성', desc:'목표 대비 7% 부족 상황이나 현 추세 유지 시 초과 달성 가능합니다.', action:'상세 보기 →' },
+  { type:'blue',  icon:'🕐', tag:'시간대 인사이트', title:'오후 2~4시 CTR 최고 구간', desc:'해당 시간대에 입찰 가중치를 높이면 효율 개선이 예상됩니다.', action:'시간 설정 →' },
+];
+
+let curP = 0;
+let curCh = '전체';
+const charts = {};
+let sortState = {};
+
+/* ── Format ────────────────────────────────────────────────── */
+const fN = n => Number(n).toLocaleString('ko-KR');
+const fW = n => '₩' + Number(n).toLocaleString('ko-KR');
+const fP = n => Number(n).toFixed(2) + '%';
+const fPct = n => Number(n).toFixed(1) + '%';
+
+/* ── Theme ─────────────────────────────────────────────────── */
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  updateThemeIcon();
+  setTimeout(rebuildCharts, 50);
+}
+function setTheme(t) {
+  if (t === 'system') localStorage.removeItem('theme');
+  else localStorage.setItem('theme', t);
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const useDark = t === 'dark' || (t === 'system' && prefersDark);
+  document.documentElement.classList.toggle('dark', useDark);
+  updateThemeIcon();
+  setTimeout(rebuildCharts, 50);
+}
+function updateThemeIcon() {
+  const btn = document.getElementById('theme-btn');
+  btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+}
+function setBrandColor(hsl) {
+  document.documentElement.style.setProperty('--brand', hsl);
+  setTimeout(rebuildCharts, 50);
 }
 
-function renderDetail(){
-  document.getElementById('detail-tbody').innerHTML=CH.map((ch,i)=>{
-    const ctr=(CD.click[i]/CD.imp[i]*100).toFixed(2);
-    const cpc=Math.round(CD.cost[i]/CD.click[i]);
-    const cvr=(CD.app[i]/CD.click[i]*100).toFixed(2);
-    return `<tr><td><b>${ch}</b></td><td>${fN(CD.imp[i])}</td><td>${fN(CD.click[i])}</td><td>${ctr}%</td><td>${fW(CD.cost[i])}</td><td>&#8361;${cpc}</td><td>${CD.app[i]}</td><td>${cvr}%</td></tr>`;
+/* ── Tab ───────────────────────────────────────────────────── */
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+/* ── Period ─────────────────────────────────────────────────── */
+function setPeriod(i, btn) {
+  curP = i;
+  document.querySelectorAll('#period-btns .period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderKPI();
+}
+
+/* ── KPI ────────────────────────────────────────────────────── */
+function renderKPI() {
+  const d = KPI_DATA[curP];
+  const items = [
+    { l:'CLS',  v: fN(d.cls),        prev: d.cls * 0.95,   curr: d.cls,   isNum:true  },
+    { l:'IMP',  v: fN(d.imp),        prev: d.imp * 0.91,   curr: d.imp,   isNum:true  },
+    { l:'CLICK',v: fN(d.click),      prev: d.click * 0.97, curr: d.click, isNum:true  },
+    { l:'CTR',  v: fP(d.ctr),        prev: d.ctr * 1.004,  curr: d.ctr,   isNum:true  },
+    { l:'COST', v: fW(d.cost),       prev: d.cost * 0.88,  curr: d.cost,  isNum:true  },
+    { l:'CPC',  v: '₩' + d.cpc,     prev: d.cpc * 1.021,  curr: d.cpc,   isNum:true  },
+    { l:'전환', v: fN(d.app),        prev: d.app * 0.816,  curr: d.app,   isNum:true  },
+    { l:'CVR',  v: fP(d.cvr),        prev: d.cvr * 0.999,  curr: d.cvr,   isNum:true  }
+  ];
+  const upMetrics = new Set(['CLS','IMP','CLICK','CTR','전환','CVR']);
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = items.map(k => {
+    const pct = ((k.curr - k.prev) / Math.abs(k.prev) * 100).toFixed(1);
+    const isUp = parseFloat(pct) > 0;
+    const isGood = upMetrics.has(k.l) ? isUp : !isUp;
+    const cls = isGood ? 'delta-up' : 'delta-down';
+    const arr = isUp ? '↑' : '↓';
+    return `<div class="kpi-card">
+      <div class="kpi-label">${k.l}</div>
+      <div class="kpi-value">${k.v}</div>
+      <div class="kpi-sub">
+        <span class="kpi-delta ${cls}">${arr} ${Math.abs(pct)}%</span>
+        <span style="font-size:10px;color:hsl(var(--muted-foreground));">vs 이전</span>
+      </div>
+    </div>`;
   }).join('');
 }
 
-function renderChKPI(){
-  const i=CH.indexOf(curCh);
-  const kpis=curCh==='전체'?
-    [{l:'총 노출',v:fN(CD.imp.reduce((a,b)=>a+b,0))},{l:'총 클릭',v:fN(CD.click.reduce((a,b)=>a+b,0))},
-     {l:'총 비용',v:fW(CD.cost.reduce((a,b)=>a+b,0))},{l:'총 전환',v:CD.app.reduce((a,b)=>a+b,0)}]:
-    [{l:'노출',v:fN(CD.imp[i])},{l:'클릭',v:fN(CD.click[i])},{l:'비용',v:fW(CD.cost[i])},{l:'전환',v:CD.app[i]}];
-  document.getElementById('ch-kpi').innerHTML=kpis.map(k=>
+/* ── Pacing ─────────────────────────────────────────────────── */
+function renderPacing() {
+  const d = KPI_DATA[4];
+  const items = [
+    { l:'전환수', curr: d.app, target: TARGETS.app, unit:'' },
+    { l:'CVR', curr: d.cvr, target: TARGETS.cvr, unit:'%' },
+    { l:'CPA', curr: Math.round(d.cost / d.app), target: TARGETS.cpa, unit:'₩', invert:true },
+    { l:'총 비용', curr: d.cost, target: TARGETS.budget, unit:'₩', invert:true }
+  ];
+  document.getElementById('pacing-grid').innerHTML = items.map(item => {
+    const pct = Math.min(100, Math.round((item.invert ? item.target / item.curr : item.curr / item.target) * 100));
+    const color = pct >= 90 ? '#10b981' : pct >= 60 ? '#f59e0b' : '#ef4444';
+    const val = item.unit === '₩' ? fW(item.curr) : item.curr + item.unit;
+    const tgt = item.unit === '₩' ? fW(item.target) : item.target + item.unit;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-size:12px;font-weight:500;">${item.l}</span>
+        <span style="font-size:12px;">${val} <span style="color:hsl(var(--muted-foreground));">/ ${tgt}</span></span>
+      </div>
+      <div class="progress"><div class="progress-bar" style="width:${pct}%;background:${color};"></div></div>
+      <div style="font-size:11px;color:hsl(var(--muted-foreground));margin-top:3px;">${pct}% 달성</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Detail Table ───────────────────────────────────────────── */
+function renderDetail() {
+  const targets = [48000, 36000, 24000, 14000, 9000]; // mock targets per channel
+  document.getElementById('detail-tbody').innerHTML = CH.map((ch, i) => {
+    const ctr = (CH_DATA.click[i] / CH_DATA.imp[i] * 100).toFixed(2);
+    const cpc = Math.round(CH_DATA.cost[i] / CH_DATA.click[i]);
+    const cvr = (CH_DATA.app[i] / CH_DATA.click[i] * 100).toFixed(2);
+    const pct = Math.round(CH_DATA.app[i] / (targets[i] / 100));
+    const badge = pct >= 90 ? 'badge-green' : pct >= 60 ? 'badge-yellow' : 'badge-red';
+    return `<tr>
+      <td><strong>${ch}</strong></td>
+      <td class="num">${fN(CH_DATA.imp[i])}</td>
+      <td class="num">${fN(CH_DATA.click[i])}</td>
+      <td class="num">${ctr}%</td>
+      <td class="num">${fW(CH_DATA.cost[i])}</td>
+      <td class="num">₩${cpc}</td>
+      <td class="num">${CH_DATA.app[i]}</td>
+      <td class="num">${cvr}%</td>
+      <td class="num"><span class="badge ${badge}">${pct}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Channel KPI ────────────────────────────────────────────── */
+function renderChKPI() {
+  const i = CH.indexOf(curCh);
+  let kpis;
+  if (curCh === '전체') {
+    const totImp  = CH_DATA.imp.reduce((a,b)=>a+b,0);
+    const totClk  = CH_DATA.click.reduce((a,b)=>a+b,0);
+    const totCost = CH_DATA.cost.reduce((a,b)=>a+b,0);
+    const totApp  = CH_DATA.app.reduce((a,b)=>a+b,0);
+    kpis = [
+      {l:'총 노출', v: fN(totImp)},
+      {l:'총 클릭', v: fN(totClk)},
+      {l:'총 비용', v: fW(totCost)},
+      {l:'총 전환', v: fN(totApp)}
+    ];
+  } else {
+    kpis = [
+      {l:'노출', v: fN(CH_DATA.imp[i])},
+      {l:'클릭', v: fN(CH_DATA.click[i])},
+      {l:'비용', v: fW(CH_DATA.cost[i])},
+      {l:'전환', v: CH_DATA.app[i]}
+    ];
+  }
+  document.getElementById('ch-kpi').innerHTML = kpis.map(k =>
     `<div class="kpi-card"><div class="kpi-label">${k.l}</div><div class="kpi-value">${k.v}</div></div>`
   ).join('');
 }
 
-function calcBudget(){
-  const b=+document.getElementById('b-budget').value||0;
-  const v=+document.getElementById('b-cvr').value||1;
-  const c=+document.getElementById('b-cpc').value||1;
-  const clicks=Math.round(b/c),convs=Math.round(clicks*v/100),cpa=convs?Math.round(b/convs):0;
-  document.getElementById('b-result').innerHTML=
-    `<div>예상 클릭수: <b>${clicks.toLocaleString()}</b></div>
-     <div>예상 전환수: <b>${convs.toLocaleString()}</b></div>
-     <div>예상 CPA: <b>${cpa?fW(cpa):'-'}</b></div>`;
+/* ── Budget Slider ──────────────────────────────────────────── */
+function onBudgetSlider() {
+  const b = +document.getElementById('b-budget').value;
+  const v = +document.getElementById('b-cvr').value;
+  const c = +document.getElementById('b-cpc').value;
+  const targetCpa = +document.getElementById('b-target-cpa').value || 0;
+
+  document.getElementById('b-budget-disp').textContent = fN(b);
+  document.getElementById('b-cvr-disp').textContent = v.toFixed(1);
+  document.getElementById('b-cpc-disp').textContent = fN(c);
+
+  const clicks = Math.round(b / c);
+  const convs  = Math.round(clicks * v / 100);
+  const cpa    = convs ? Math.round(b / convs) : 0;
+  const roas   = convs ? ((convs * 50000) / b * 100).toFixed(1) : 0; // mock avg. order value 50,000
+  const cpaDiff = targetCpa && cpa ? cpa - targetCpa : null;
+  const cpaDiffColor = cpaDiff !== null ? (cpaDiff <= 0 ? '#16a34a' : '#dc2626') : '';
+  const cpaDiffText  = cpaDiff !== null
+    ? `<span style="color:${cpaDiffColor};font-size:11px;"> (목표 대비 ${cpaDiff > 0 ? '+' : ''}${fN(cpaDiff)}원)</span>`
+    : '';
+
+  document.getElementById('b-result').innerHTML = `
+    <div style="font-size:12px;font-weight:600;margin-bottom:10px;color:hsl(var(--brand));">시뮬레이션 결과</div>
+    <div style="display:grid;gap:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:hsl(var(--muted-foreground));">예상 클릭수</span><strong>${fN(clicks)}</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:hsl(var(--muted-foreground));">예상 전환수</span><strong>${fN(convs)}</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;align-items:baseline;"><span style="color:hsl(var(--muted-foreground));">예상 CPA</span><span>${cpa ? fW(cpa) : '—'}${cpaDiffText}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:hsl(var(--muted-foreground));">예상 ROAS</span><strong>${roas}%</strong></div>
+    </div>`;
 }
 
-function mk(id,type,data,opts={}){
-  const el=document.getElementById(id);if(!el)return;
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart(el,{type,data,options:{responsive:true,...opts}});
+/* ── Budget Allocation ──────────────────────────────────────── */
+const allocPct = [40, 25, 18, 12, 5];
+function renderBudgetAlloc() {
+  const wrap = document.getElementById('budget-alloc-sliders');
+  wrap.innerHTML = CH.map((ch, i) => `
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <label style="font-size:12px;font-weight:500;">${ch}</label>
+        <span style="font-size:12px;color:hsl(var(--brand));font-weight:600;" id="alloc-val-${i}">${allocPct[i]}%</span>
+      </div>
+      <input type="range" min="0" max="100" value="${allocPct[i]}" oninput="updateAlloc(${i},this.value)" id="alloc-${i}">
+    </div>`
+  ).join('');
+}
+function updateAlloc(idx, val) {
+  allocPct[idx] = +val;
+  document.getElementById('alloc-val-' + idx).textContent = val + '%';
+}
+function randomizeBudget() {
+  let remaining = 100;
+  CH.forEach((_, i) => {
+    if (i === CH.length - 1) { allocPct[i] = remaining; }
+    else {
+      const v = Math.round(Math.random() * remaining * 0.6);
+      allocPct[i] = v;
+      remaining -= v;
+    }
+    const slider = document.getElementById('alloc-' + i);
+    const label  = document.getElementById('alloc-val-' + i);
+    if (slider) slider.value = allocPct[i];
+    if (label)  label.textContent = allocPct[i] + '%';
+  });
 }
 
-function initCharts(){
-  mk('chart-trend','line',{labels:L7,datasets:[
-    {label:'노출',data:[38000,42000,39000,45000,41000,44000,45678],borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.1)',tension:0.3,yAxisID:'y'},
-    {label:'클릭',data:[1900,2100,1950,2250,2050,2200,2341],borderColor:'#94a3b8',tension:0.3,yAxisID:'y1'}
-  ]},{scales:{y:{position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}},plugins:{legend:{position:'bottom'}}});
-  mk('chart-pie','doughnut',{labels:CH,datasets:[{data:CD.cost,backgroundColor:CL}]},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-cvr','bar',{labels:CH,datasets:[{label:'CVR(%)',data:[5.56,5.46,5.59,5.13,5.80],backgroundColor:CL}]},{plugins:{legend:{display:false}}});
-  mk('chart-cpc','line',{labels:L7,datasets:[{label:'CPC',data:[542,538,529,527,521,527,527],borderColor:'#dc2626',tension:0.3,fill:true,backgroundColor:'rgba(220,38,38,0.05)'}]},{plugins:{legend:{display:false}}});
-  mk('chart-radar','radar',{labels:['CTR','CVR','CPC효율','전환수','비용효율'],datasets:CH.map((ch,i)=>({
-    label:ch,data:[60+Math.random()*35,55+Math.random()*40,50+Math.random()*45,65+Math.random()*30,60+Math.random()*35],borderColor:CL[i],fill:false,borderWidth:2
-  }))},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-d1','bar',{labels:CH,datasets:[{label:'전환수',data:CD.app,backgroundColor:CL}]},{plugins:{legend:{display:false}}});
-  mk('chart-d2','bar',{labels:CH,datasets:[{label:'CTR(%)',data:CH.map((_,i)=>+(CD.click[i]/CD.imp[i]*100).toFixed(2)),backgroundColor:CL}]},{plugins:{legend:{display:false}}});
-  mk('chart-ch1','line',{labels:L7,datasets:[{label:'전환수',data:[18,22,19,24,21,23,23],borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.1)',tension:0.3,fill:true}]},{plugins:{legend:{display:false}}});
-  mk('chart-ch2','bar',{labels:CH,datasets:[
-    {label:'비용(만원)',data:CD.cost.map(c=>Math.round(c/10000)),backgroundColor:'rgba(220,38,38,0.7)'},
-    {label:'전환x100',data:CD.app.map(a=>a*100),backgroundColor:'rgba(148,163,184,0.7)'}
-  ]},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-sa','line',{labels:L7,datasets:[
-    {label:'클릭',data:[245,267,251,289,263,278,280],borderColor:'#dc2626',tension:0.3},
-    {label:'전환',data:[14,16,15,18,16,17,17],borderColor:'#94a3b8',tension:0.3}
-  ]},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-budget','pie',{labels:CH,datasets:[{data:[40,25,18,12,5],backgroundColor:CL}]},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-ab','bar',{labels:['CTR(%)','CVR(%)','CPC절감','전환수'],datasets:[
-    {label:'안 A',data:[5.12,5.25,0,123],backgroundColor:'rgba(148,163,184,0.7)'},
-    {label:'안 B',data:[6.34,6.12,38,142],backgroundColor:'rgba(220,38,38,0.7)'}
-  ]},{plugins:{legend:{position:'bottom'}}});
-  mk('chart-ins1','bar',{labels:['CLS','IMP','CLICK','COST','APP'],datasets:[{label:'전주대비(%)',
-    data:[5.2,8.7,3.1,-2.1,18.4],
-    backgroundColor:['#dc2626','#dc2626','#dc2626','#94a3b8','#dc2626']
-  }]},{plugins:{legend:{display:false}}});
-  mk('chart-ins2','radar',{labels:['효율','안정성','성장성','볼륨','비용'],datasets:CH.map((ch,i)=>({
-    label:ch,data:[60+Math.random()*35,55+Math.random()*40,65+Math.random()*30,50+Math.random()*45,60+Math.random()*35],
-    borderColor:CL[i],fill:false,borderWidth:2
-  }))},{plugins:{legend:{position:'bottom'}}});
+/* ── A/B ────────────────────────────────────────────────────── */
+function renderAB() {
+  const aData = {CTR:5.12, CVR:5.25, CPC:527, 전환:123};
+  const bData = {CTR:6.34, CVR:6.12, CPC:489, 전환:142};
+  const keys = Object.keys(aData);
+
+  const statHtml = (data) => keys.map(k => {
+    const fmtd = k === 'CPC' ? '₩'+fN(data[k]) : (k==='CTR'||k==='CVR') ? data[k]+'%' : fN(data[k]);
+    return `<div class="stat-box"><div class="label">${k}</div><div class="val">${fmtd}</div></div>`;
+  }).join('');
+
+  document.getElementById('ab-a-stats').innerHTML = statHtml(aData);
+  document.getElementById('ab-b-stats').innerHTML = statHtml(bData);
+
+  document.getElementById('ab-improvement').innerHTML = keys.map(k => {
+    const diff = ((bData[k] - aData[k]) / aData[k] * 100).toFixed(1);
+    const isGood = (k === 'CTR' || k === 'CVR' || k === '전환') ? parseFloat(diff) > 0 : parseFloat(diff) < 0;
+    const color = isGood ? '#16a34a' : '#dc2626';
+    const width = Math.min(100, Math.abs(parseFloat(diff)) * 4);
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px;">
+        <span>${k}</span>
+        <span style="font-weight:600;color:${color};">${parseFloat(diff)>0?'+':''}${diff}%</span>
+      </div>
+      <div class="progress">
+        <div class="progress-bar" style="width:${width}%;background:${color};"></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function showTab(id,btn){
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('pane-'+id).classList.add('active');
-  btn.classList.add('active');
+/* ── Insights ───────────────────────────────────────────────── */
+function renderInsights() {
+  const typeMap = { red:'alert-red', green:'alert-green', blue:'alert-blue' };
+  const tagMap  = { red:'badge-red', green:'badge-green', blue:'badge-blue' };
+  document.getElementById('insight-list').innerHTML = INSIGHTS.map(ins =>
+    `<div class="alert ${typeMap[ins.type]}" style="display:flex;align-items:flex-start;gap:12px;">
+      <div style="font-size:22px;line-height:1.2;">${ins.icon}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span class="badge ${tagMap[ins.type]}">${ins.tag}</span>
+          <strong style="font-size:13px;">${ins.title}</strong>
+        </div>
+        <p style="font-size:12px;color:hsl(var(--muted-foreground));margin-bottom:6px;">${ins.desc}</p>
+        <button class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:12px;">${ins.action}</button>
+      </div>
+    </div>`
+  ).join('');
 }
-function setPeriod(i,btn){
-  curP=i;
-  document.querySelectorAll('.prd-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderKPI();
+
+/* ── Action Log ─────────────────────────────────────────────── */
+function filterActions(ch) {
+  const rows = document.querySelectorAll('#action-tbody tr');
+  rows.forEach(r => {
+    const match = !ch || r.dataset.ch === ch;
+    r.style.display = match ? '' : 'none';
+  });
 }
-function setChannel(ch,btn){
-  curCh=ch;
-  document.querySelectorAll('#ch-filter .prd-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderChKPI();
+function filterActionStatus(st) {
+  const rows = document.querySelectorAll('#action-tbody tr');
+  rows.forEach(r => {
+    const match = !st || r.dataset.st === st;
+    r.style.display = match ? '' : 'none';
+  });
 }
-function applyTheme(t){alert('테마 ['+t+'] 적용됨');}
-function openModal(){
-  document.getElementById('modal').classList.remove('hidden');
-  document.getElementById('m-date').value=new Date().toISOString().split('T')[0];
+
+/* ── Modal ──────────────────────────────────────────────────── */
+function openModal() {
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
 }
-function closeModal(){document.getElementById('modal').classList.add('hidden');}
-function saveAction(){
-  const d=document.getElementById('m-date').value;
-  const ch=document.getElementById('m-ch').value;
-  const desc=document.getElementById('m-desc').value.trim();
-  const who=document.getElementById('m-person').value.trim()||'-';
-  if(!desc){alert('액션 내용을 입력하세요');return;}
-  const row=document.createElement('tr');
-  row.innerHTML=`<td>${d}</td><td>${ch}</td><td>${desc}</td><td>${who}</td><td><span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">신규</span></td>`;
-  document.getElementById('action-tbody').prepend(row);
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function saveAction() {
+  const d    = document.getElementById('m-date').value;
+  const ch   = document.getElementById('m-ch').value;
+  const desc = document.getElementById('m-desc').value.trim();
+  const who  = document.getElementById('m-person').value.trim() || '—';
+  const eff  = document.getElementById('m-effect').value.trim() || '—';
+  if (!desc) { alert('액션 내용을 입력하세요'); return; }
+
+  const badgeMap = { Helper:'badge-blue', CPF:'badge-yellow', FA:'badge-green', HL:'badge-gray', MCL:'badge-gray', '전체':'badge-gray' };
+  const tr = document.createElement('tr');
+  tr.dataset.ch = ch; tr.dataset.st = '신규';
+  tr.innerHTML = `<td>${d}</td><td><span class="badge ${badgeMap[ch]||'badge-gray'}">${ch}</span></td>
+    <td>${desc}</td><td>${who}</td>
+    <td><span class="badge badge-blue">신규</span></td>
+    <td style="font-size:12px;color:hsl(var(--muted-foreground));">${eff}</td>`;
+  document.getElementById('action-tbody').prepend(tr);
   closeModal();
 }
 
-renderKPI();renderDetail();renderChKPI();calcBudget();initCharts();
+/* ── Table Sort ─────────────────────────────────────────────── */
+function sortTable(tbodyId, colIdx, th) {
+  const tbody = document.getElementById(tbodyId);
+  const rows  = Array.from(tbody.querySelectorAll('tr'));
+  const key   = `${tbodyId}-${colIdx}`;
+  const asc   = sortState[key] !== true;
+  sortState[key] = asc;
+
+  // Update header classes
+  tbody.closest('table').querySelectorAll('th').forEach(h => {
+    h.classList.remove('sort-asc','sort-desc');
+  });
+  th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+
+  rows.sort((a, b) => {
+    const av = a.cells[colIdx]?.textContent.replace(/[₩,%\s]/g,'').replace(/,/g,'') || '';
+    const bv = b.cells[colIdx]?.textContent.replace(/[₩,%\s]/g,'').replace(/,/g,'') || '';
+    const an = parseFloat(av), bn = parseFloat(bv);
+    if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+    return asc ? av.localeCompare(bv,'ko') : bv.localeCompare(av,'ko');
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+/* ── Filter Detail Table ────────────────────────────────────── */
+function filterDetailTable(q) {
+  document.querySelectorAll('#detail-tbody tr').forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+/* ── CSV Export ─────────────────────────────────────────────── */
+function exportTableCSV(tbodyId, name) {
+  const tbody  = document.getElementById(tbodyId);
+  const table  = tbody.closest('table');
+  const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+  const rows   = Array.from(tbody.querySelectorAll('tr')).map(tr =>
+    Array.from(tr.querySelectorAll('td')).map(td => '"' + td.textContent.trim().replace(/"/g,'""') + '"')
+  );
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
+  a.download = `${name}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+/* ── Chart PNG Export ───────────────────────────────────────── */
+function exportChart(id) {
+  const canvas = document.getElementById(id);
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = `${id}_${new Date().toISOString().slice(0,10)}.png`;
+  a.click();
+}
+
+/* ── Save Targets ───────────────────────────────────────────── */
+function saveTargets() {} // hook for future persistence
+
+/* ── Heatmap ────────────────────────────────────────────────── */
+function renderHeatmap() {
+  const hours = Array.from({length:24},(_,i)=>i+'시');
+  const data  = CH.map(() => Array.from({length:24},()=> +(Math.random()*8+1).toFixed(2)));
+  const maxVal = 9;
+  const bgFor  = v => {
+    const ratio = v / maxVal;
+    return `rgba(59,130,246,${(ratio*0.85+0.08).toFixed(2)})`;
+  };
+  const html = `<table style="border-collapse:collapse;font-size:10px;white-space:nowrap;">
+    <thead><tr><th style="padding:4px 8px;"></th>${hours.map(h=>`<th style="padding:4px 5px;font-weight:500;color:hsl(var(--muted-foreground));">${h}</th>`).join('')}</tr></thead>
+    <tbody>${CH.map((ch,ci)=>`<tr><td style="padding:4px 8px;font-weight:500;">${ch}</td>${data[ci].map(v=>`<td style="padding:3px 5px;background:${bgFor(v)};color:white;text-align:center;border-radius:3px;">${v}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+  document.getElementById('heatmap-wrap').innerHTML = html;
+}
+
+/* ── Charts ─────────────────────────────────────────────────── */
+function getTextColor() {
+  return document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b';
+}
+function getGridColor() {
+  return document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+}
+function baseOpts(legend=false) {
+  const tc = getTextColor(), gc = getGridColor();
+  return {
+    responsive: true,
+    plugins: { legend: { display: legend, position:'bottom', labels:{ color:tc, font:{size:11}, boxWidth:10, padding:12 } } },
+    scales: {
+      x: { ticks:{ color:tc, font:{size:11} }, grid:{ color:gc } },
+      y: { ticks:{ color:tc, font:{size:11} }, grid:{ color:gc } }
+    }
+  };
+}
+
+function mk(id, type, data, opts={}) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, { type, data, options: { responsive:true, ...opts } });
+}
+
+function initCharts() {
+  const tc = getTextColor();
+  const gc = getGridColor();
+
+  // Trend line
+  mk('chart-trend','line',{
+    labels: L7,
+    datasets: [
+      { label:'노출', data:[38000,42000,39000,45000,41000,44000,45678], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', tension:0.3, yAxisID:'y', pointRadius:3 },
+      { label:'클릭', data:[1900,2100,1950,2250,2050,2200,2341], borderColor:'#8b5cf6', backgroundColor:'rgba(139,92,246,0.08)', tension:0.3, yAxisID:'y1', pointRadius:3 }
+    ]
+  },{
+    plugins:{ legend:{ display:true, position:'bottom', labels:{ color:tc, font:{size:11}, boxWidth:10, padding:12 } } },
+    scales:{
+      x:{ ticks:{ color:tc, font:{size:11} }, grid:{ color:gc } },
+      y:{ position:'left', ticks:{ color:tc, font:{size:11} }, grid:{ color:gc } },
+      y1:{ position:'right', ticks:{ color:tc, font:{size:11} }, grid:{ drawOnChartArea:false } }
+    }
+  });
+
+  // Pie
+  mk('chart-pie','doughnut',{
+    labels: CH,
+    datasets:[{ data: CH_DATA.cost, backgroundColor: CHART_COLORS, borderWidth: 2, borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff' }]
+  },{
+    cutout: '62%',
+    plugins:{ legend:{ display:true, position:'bottom', labels:{ color:tc, font:{size:11}, boxWidth:10, padding:10 } } }
+  });
+
+  // CVR bar
+  mk('chart-cvr','bar',{
+    labels: CH,
+    datasets:[{ label:'CVR(%)', data:[5.56,5.46,5.59,5.13,5.80], backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
+  },{ ...baseOpts(false) });
+
+  // CPC line
+  mk('chart-cpc','line',{
+    labels: L7,
+    datasets:[{ label:'CPC(원)', data:[542,538,529,527,521,527,527], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.06)', tension:0.3, fill:true, pointRadius:3 }]
+  },{ ...baseOpts(false) });
+
+  // Radar
+  mk('chart-radar','radar',{
+    labels:['CTR','CVR','CPC효율','전환수','비용효율'],
+    datasets: CH.map((ch,i)=>({
+      label:ch,
+      data:[60+Math.random()*35,55+Math.random()*40,50+Math.random()*45,65+Math.random()*30,60+Math.random()*35],
+      borderColor: CHART_COLORS[i], fill:false, borderWidth:2, pointRadius:2
+    }))
+  },{
+    plugins:{ legend:{ display:true, position:'bottom', labels:{ color:tc, font:{size:10}, boxWidth:8, padding:8 } } },
+    scales:{ r:{ ticks:{ display:false }, grid:{ color:gc }, pointLabels:{ color:tc, font:{size:11} } } }
+  });
+
+  // Detail bars
+  mk('chart-d1','bar',{
+    labels: CH,
+    datasets:[{ label:'전환수', data: CH_DATA.app, backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
+  },{ ...baseOpts(false) });
+
+  mk('chart-d2','bar',{
+    labels: CH,
+    datasets:[{ label:'CTR(%)', data: CH.map((_,i)=>+(CH_DATA.click[i]/CH_DATA.imp[i]*100).toFixed(2)), backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
+  },{ ...baseOpts(false) });
+
+  // Channel trend
+  mk('chart-ch1','line',{
+    labels: L7,
+    datasets:[{ label:'전환수', data:[18,22,19,24,21,23,23], borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.08)', tension:0.3, fill:true, pointRadius:3 }]
+  },{ ...baseOpts(false) });
+
+  mk('chart-ch2','bar',{
+    labels: CH,
+    datasets:[
+      { label:'비용(만원)', data: CH_DATA.cost.map(c=>Math.round(c/10000)), backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4 },
+      { label:'전환×100',  data: CH_DATA.app.map(a=>a*100), backgroundColor:'rgba(139,92,246,0.7)', borderRadius:4 }
+    ]
+  },{ ...baseOpts(true) });
+
+  // SA
+  mk('chart-sa','line',{
+    labels: L7,
+    datasets:[
+      { label:'클릭', data:[245,267,251,289,263,278,280], borderColor:'#3b82f6', tension:0.3, pointRadius:3 },
+      { label:'전환', data:[14,16,15,18,16,17,17], borderColor:'#10b981', tension:0.3, pointRadius:3 }
+    ]
+  },{ ...baseOpts(true) });
+
+  mk('chart-sa2','bar',{
+    labels:['1위','2위','3위','4위','5위+'],
+    datasets:[{ label:'노출 비중(%)', data:[28,34,22,10,6], backgroundColor: CHART_COLORS_ALPHA, borderRadius:4 }]
+  },{ ...baseOpts(false) });
+
+  // Budget pacing
+  mk('chart-budget-pacing','bar',{
+    labels:['1주차','2주차','3주차','4주차'],
+    datasets:[
+      { label:'실제 집행', data:[8200000,9400000,10100000,9550000], backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4 },
+      { label:'목표 페이스',data:[10000000,10000000,10000000,10000000], type:'line', borderColor:'#ef4444', borderWidth:2, borderDash:[4,4], pointRadius:0, fill:false }
+    ]
+  },{ ...baseOpts(true) });
+
+  // A/B
+  mk('chart-ab','bar',{
+    labels:['CTR(%)','CVR(%)','전환수'],
+    datasets:[
+      { label:'안 A', data:[5.12,5.25,123], backgroundColor:'rgba(148,163,184,0.7)', borderRadius:4 },
+      { label:'안 B', data:[6.34,6.12,142], backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4 }
+    ]
+  },{ ...baseOpts(true) });
+
+  // Insights charts
+  mk('chart-ins1','bar',{
+    labels:['전환','노출','클릭','비용','CVR'],
+    datasets:[{
+      label:'전주대비(%)',
+      data:[18.4,8.7,3.1,-2.1,0.8],
+      backgroundColor:d => Array.isArray(d) ? [] : [],
+      borderRadius:4
+    }]
+  },{
+    ...baseOpts(false),
+    plugins:{ legend:{ display:false } },
+    // color by value
+    animation:{ onComplete: function() {
+      const ch = charts['chart-ins1'];
+      if (!ch) return;
+      ch.data.datasets[0].backgroundColor = ch.data.datasets[0].data.map(v => v >= 0 ? 'rgba(16,185,129,0.75)' : 'rgba(239,68,68,0.75)');
+      ch.update('none');
+    }}
+  });
+
+  mk('chart-ins2','radar',{
+    labels:['효율','안정성','성장성','볼륨','비용최적'],
+    datasets: CH.map((ch,i)=>({
+      label:ch,
+      data:[60+Math.random()*35,55+Math.random()*40,65+Math.random()*30,50+Math.random()*45,60+Math.random()*35],
+      borderColor: CHART_COLORS[i], fill:false, borderWidth:2, pointRadius:2
+    }))
+  },{
+    plugins:{ legend:{ display:true, position:'bottom', labels:{ color:tc, font:{size:10}, boxWidth:8, padding:8 } } },
+    scales:{ r:{ ticks:{ display:false }, grid:{ color:gc }, pointLabels:{ color:tc, font:{size:11} } } }
+  });
+}
+
+function rebuildCharts() {
+  Object.values(charts).forEach(c => { try { c.destroy(); } catch(e){} });
+  Object.keys(charts).forEach(k => delete charts[k]);
+  initCharts();
+}
+
+/* ── Channel filter ─────────────────────────────────────────── */
+function setChannel(ch, btn) {
+  curCh = ch;
+  document.querySelectorAll('#ch-filter .ch-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChKPI();
+}
+
+/* ── Init ───────────────────────────────────────────────────── */
+function init() {
+  updateThemeIcon();
+  renderKPI();
+  renderPacing();
+  renderDetail();
+  renderChKPI();
+  onBudgetSlider();
+  renderBudgetAlloc();
+  renderAB();
+  renderInsights();
+  renderHeatmap();
+  initCharts();
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
